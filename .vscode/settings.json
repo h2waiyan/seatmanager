@@ -1,0 +1,4 @@
+{
+    "appService.defaultWebAppToDeploy": "/subscriptions/15530130-c540-41ae-a102-fc82a1dee75e/microsoft.web/sites/subscriptions/15530130-c540-41ae-a102-fc82a1dee75e/resourceGroups/appsvc_linux_centralus/providers/Microsoft.Web/sites/heinticket",
+    "appService.deploySubpath": "."
+}
