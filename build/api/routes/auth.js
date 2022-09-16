@@ -16,32 +16,29 @@ const express_1 = require("express");
 const typedi_1 = require("typedi");
 const auth_1 = __importDefault(require("../../services/auth"));
 const middlewares_1 = __importDefault(require("../middlewares"));
-const validation_1 = __importDefault(require("../../services/validation"));
 const celebrate_1 = require("celebrate");
 const route = (0, express_1.Router)();
+var CreateUserSchema = celebrate_1.Joi.object().keys({
+    userid: celebrate_1.Joi.string().required(),
+    usertype: celebrate_1.Joi.number().required(),
+    username: celebrate_1.Joi.string().required(),
+    password: celebrate_1.Joi.string().required(),
+    gate_id: celebrate_1.Joi.number(),
+    service_fee_id: celebrate_1.Joi.number(),
+    remark: celebrate_1.Joi.string(),
+    createuserid: celebrate_1.Joi.string()
+});
+var SignInSchema = celebrate_1.Joi.object().keys({
+    userid: celebrate_1.Joi.string().required(),
+    password: celebrate_1.Joi.string().required(),
+    uuid: celebrate_1.Joi.string(),
+    fcmtoken: celebrate_1.Joi.string()
+});
 exports.default = (app) => {
     app.use('/auth', route);
     //Sign up
-    route.post('/createuser', (0, celebrate_1.celebrate)({
-        body: celebrate_1.Joi.object({
-            userid: celebrate_1.Joi.string().required(),
-            usertype: celebrate_1.Joi.number().required(),
-            username: celebrate_1.Joi.string().required(),
-            password: celebrate_1.Joi.string().required(),
-            // gate_id: Joi.string().required(),
-            // service_fee_id: Joi.string().required(),
-            // isdeleted: Joi.string().required(),
-            sessionexpired: celebrate_1.Joi.string().required(),
-        }),
-    }), middlewares_1.default.isAuth, middlewares_1.default.tokenCheck, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    route.post('/createuser', middlewares_1.default.validation(CreateUserSchema), middlewares_1.default.isAuth, middlewares_1.default.tokenCheck, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
         try {
-            const ValidationServiceInstance = typedi_1.Container.get(validation_1.default);
-            // if (ValidationServiceInstance.createUserRequest(req) == 'incorrectfield') {
-            //   return res.status(200).json({ returncode: "300", message: "Incorrect fields" });
-            // }
-            // if (ValidationServiceInstance.createUserRequest(req) == 'blankfield') {
-            //   return res.status(200).json({ returncode: "300", message: "Values can't be blank" });
-            // }
             const authServiceInstance = typedi_1.Container.get(auth_1.default);
             const { returncode, message } = yield authServiceInstance.CreateUser(req.body);
             return res.status(200).json({ returncode, message });
@@ -50,16 +47,8 @@ exports.default = (app) => {
             return next(e);
         }
     }));
-    // Sign in
-    route.post('/signin', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    route.post('/signin', middlewares_1.default.validation(SignInSchema), (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
         try {
-            const ValidationServiceInstance = typedi_1.Container.get(validation_1.default);
-            if (ValidationServiceInstance.signinrequest(req) == 'incorrectfield') {
-                return res.status(200).json({ returncode: "300", message: "Incorrect fields" });
-            }
-            if (ValidationServiceInstance.signinrequest(req) == 'blankfield') {
-                return res.status(200).json({ returncode: "300", message: "Values can't be blank" });
-            }
             const authServiceInstance = typedi_1.Container.get(auth_1.default);
             const { returncode, message, data, token } = yield authServiceInstance.SignIn(req.body);
             return res.json({ returncode, message, data, token }).status(200);
@@ -72,13 +61,6 @@ exports.default = (app) => {
     // middlewares.isAuth,
     (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
         try {
-            const ValidationServiceInstance = typedi_1.Container.get(validation_1.default);
-            if (ValidationServiceInstance.refreshTokenRequest(req) == 'incorrectfield') {
-                return res.status(200).json({ returncode: "300", message: "Incorrect fields" });
-            }
-            if (ValidationServiceInstance.refreshTokenRequest(req) == 'blankfield') {
-                return res.status(200).json({ returncode: "300", message: "Values can't be blank" });
-            }
             const authServiceInstance = typedi_1.Container.get(auth_1.default);
             const { returncode, message, data, token } = yield authServiceInstance.RefreshToken(req);
             return res.json({ returncode, message, data, token }).status(200);

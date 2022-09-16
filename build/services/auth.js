@@ -30,11 +30,9 @@ const config_1 = __importDefault(require("../config"));
 const argon2_1 = __importDefault(require("argon2"));
 const jwt_decode_1 = __importDefault(require("jwt-decode"));
 let AuthService = class AuthService {
-    constructor(userModel, noti_deviceModel) {
+    constructor(userModel) {
         this.userModel = userModel;
-        this.noti_deviceModel = noti_deviceModel;
     }
-    // user create -> useid, createuserid, password, username, usertype, remark
     CreateUser(IUser) {
         return __awaiter(this, void 0, void 0, function* () {
             var adminuserCheck;
@@ -52,16 +50,19 @@ let AuthService = class AuthService {
             try {
                 const hashedPassword = yield argon2_1.default.hash(IUser.password);
                 const userData = {
-                    // userid: IUser.createuserid,
+                    // userid: IUser.userid,
+                    userid: IUser.createuserid,
                     username: IUser.username,
                     password: hashedPassword,
                     usertype: IUser.usertype,
-                    remark: IUser.remark
+                    remark: IUser.remark,
+                    service_fee_id: IUser.service_fee_id,
+                    gate_id: IUser.gate_id,
                 };
                 var userCheck;
                 yield this.userModel.services.findAll({
                     where: {
-                        // userid: IUser.createuserid, 
+                        userid: IUser.createuserid,
                         isdeleted: false
                     }
                 }).then((data) => {
@@ -75,7 +76,7 @@ let AuthService = class AuthService {
                 var deleteduserCheck;
                 yield this.userModel.services.findAll({
                     where: {
-                        // userid: IUser.createuserid, 
+                        userid: IUser.createuserid,
                         isdeleted: true
                     }
                 }).then((data) => {
@@ -142,16 +143,20 @@ let AuthService = class AuthService {
                     const noti_device_id = "noti_device_id_" + Math.floor(1000000000 + Math.random() * 9000000000) + Date.now();
                     const notiDeviceData = Object.assign({ noti_device_id }, UserLogin);
                     var dataCheck;
-                    yield this.noti_deviceModel.services.findAll({ where: { userid: UserLogin.userid, uuid: UserLogin.uuid } }).then((data) => {
-                        if (data.length > 0) {
-                            dataCheck = data[0];
-                        }
-                    });
+                    // await this.noti_deviceModel.services.findAll(
+                    //   { where: { userid: UserLogin.userid, uuid: UserLogin.uuid } }
+                    // ).then((data: any) => {
+                    //   if (data.length > 0) {
+                    //     dataCheck = data[0];
+                    //   }
+                    // });
                     if (!dataCheck) {
                         var newRecord;
-                        yield this.noti_deviceModel.services.create(notiDeviceData).then((data) => {
-                            newRecord = data;
-                        });
+                        // await this.noti_deviceModel.services.create(notiDeviceData).then(
+                        //   (data: any) => {
+                        //     newRecord = data
+                        //   }
+                        // )
                         return { returncode: "200", message: "Success", data, token };
                     }
                     if (dataCheck) {
@@ -163,19 +168,18 @@ let AuthService = class AuthService {
                                 fcmtoken: UserLogin.fcmtoken
                             };
                             console.log(update);
-                            yield this.noti_deviceModel.services
-                                .update(update, {
-                                where: filter,
-                            }).then((data) => {
-                                if (data) {
-                                    if (data == 1) {
-                                        return { returncode: "200", message: "Success", data, token };
-                                    }
-                                    else {
-                                        return { returncode: "300", message: "Fail" };
-                                    }
-                                }
-                            });
+                            // await this.noti_deviceModel.services
+                            //   .update(update, {
+                            //     where: filter,
+                            //   }).then((data: any) => {
+                            //     if (data) {
+                            //       if (data == 1) {
+                            //         return { returncode: "200", message: "Success", data, token };
+                            //       } else {
+                            //         return { returncode: "300", message: "Fail" };
+                            //       }
+                            //     }
+                            //   });
                         }
                         catch (e) {
                             return { returncode: "300", message: "error" };
@@ -241,7 +245,6 @@ let AuthService = class AuthService {
 AuthService = __decorate([
     (0, typedi_1.Service)(),
     __param(0, (0, typedi_1.Inject)('userModel')),
-    __param(1, (0, typedi_1.Inject)('noti_deviceModel')),
-    __metadata("design:paramtypes", [Object, Object])
+    __metadata("design:paramtypes", [Object])
 ], AuthService);
 exports.default = AuthService;
