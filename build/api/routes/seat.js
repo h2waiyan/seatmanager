@@ -23,7 +23,7 @@ var SeatCreateSchema = celebrate_1.Joi.object().keys({
     seat_id: celebrate_1.Joi.string().allow(""),
     seat_no_array: celebrate_1.Joi.string().required(),
     trip_id: celebrate_1.Joi.string().required(),
-    sub_route_id: celebrate_1.Joi.string().required(),
+    sub_route_id: celebrate_1.Joi.string().allow(""),
     seat_status: celebrate_1.Joi.string().required(),
     total_price: celebrate_1.Joi.number().allow(""),
     customer_name: celebrate_1.Joi.string().allow(""),

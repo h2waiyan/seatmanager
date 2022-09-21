@@ -28,6 +28,7 @@ const typedi_1 = require("typedi");
 const sequelize_1 = __importDefault(require("sequelize"));
 const authorization_check_1 = __importDefault(require("./authorization_check"));
 const typedi_2 = require("typedi");
+const uuid_1 = require("uuid");
 let CategoryService = class CategoryService {
     constructor(seatModel, userModel) {
         this.seatModel = seatModel;
@@ -45,23 +46,24 @@ let CategoryService = class CategoryService {
                 return { returncode: "300", message: "User Had no authorization to create Category." };
             }
             try {
-                const seat_id = "seat_id_" + Math.floor(1000000000 + Math.random() * 9000000000) + Date.now();
+                const seat_id = "seat_id_" + (0, uuid_1.v4)();
                 const seatData = Object.assign(Object.assign({}, SeatManager), { seat_id: seat_id });
                 console.log(">>>>>>>");
                 console.log(seatData);
                 var dataCheck;
-                yield this.seatModel.services.findAll({
-                    where: { seat_id: seat_id, seat_isdeleted: false }
-                }).then((data) => {
-                    if (data.length > 0) {
-                        dataCheck = data[0];
-                    }
-                });
-                if (dataCheck) {
-                    const returncode = "300";
-                    const message = "Seat ID already exists. Try agian.";
-                    return { returncode, message };
-                }
+                // await this.seatModel.services.findAll({
+                //   where:
+                //     { seat_id: seat_id, seat_isdeleted: false }
+                // }).then((data: any) => {
+                //   if (data.length > 0) {
+                //     dataCheck = data[0]
+                //   }
+                // })
+                // if (dataCheck) {
+                //   const returncode = "300";
+                //   const message = "Seat ID already exists. Try agian."
+                //   return { returncode, message };
+                // }
                 var newRecord;
                 yield this.seatModel.services.create(seatData).then((data) => {
                     newRecord = data;

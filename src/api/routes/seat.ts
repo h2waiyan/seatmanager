@@ -12,9 +12,9 @@ var SeatCreateSchema = Joi.object().keys({
   userid: Joi.string().required(),
 
   seat_id : Joi.string().allow(""),
-  seat_no_array : Joi.string().required(),
+  seat_no_array : Joi.array().required(),
   trip_id: Joi.string().required(),
-  sub_route_id : Joi.string().required(),
+  sub_route_id : Joi.string().allow(""),
   seat_status : Joi.string().required(),
 
   total_price : Joi.number().allow(""),

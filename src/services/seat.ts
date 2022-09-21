@@ -3,6 +3,7 @@ import Sequelize from "sequelize";
 import AuthroizationCheck from './authorization_check';
 import { Container } from 'typedi';
 import { GetSeat, SeatManager } from '../interfaces/seat';
+import { v4 as uuidv4 } from 'uuid';
 
 @Service()
 export default class CategoryService {
@@ -28,9 +29,12 @@ export default class CategoryService {
 
     try {
 
-      const seat_id = "seat_id_" + Math.floor(1000000000 + Math.random() * 9000000000) + Date.now();
+      var one = { "data" : SeatManager.seat_no_array }
+
+      const seat_id = "seat_id_" + uuidv4();
       const seatData = {
         ...SeatManager,
+        seat_no_array : JSON.stringify(one),
         seat_id: seat_id,
       }
 
@@ -39,21 +43,21 @@ export default class CategoryService {
 
       var dataCheck: any;
 
-      await this.seatModel.services.findAll({
-        where:
-          { seat_id: seat_id, seat_isdeleted: false }
-      }).then((data: any) => {
+      // await this.seatModel.services.findAll({
+      //   where:
+      //     { seat_id: seat_id, seat_isdeleted: false }
+      // }).then((data: any) => {
 
-        if (data.length > 0) {
-          dataCheck = data[0]
-        }
-      })
+      //   if (data.length > 0) {
+      //     dataCheck = data[0]
+      //   }
+      // })
 
-      if (dataCheck) {
-        const returncode = "300";
-        const message = "Seat ID already exists. Try agian."
-        return { returncode, message };
-      }
+      // if (dataCheck) {
+      //   const returncode = "300";
+      //   const message = "Seat ID already exists. Try agian."
+      //   return { returncode, message };
+      // }
 
       var newRecord: any;
       await this.seatModel.services.create(seatData).then(
@@ -101,23 +105,31 @@ export default class CategoryService {
   
           if (data.length > 0) {
 
-            // var templist: any[] = [];
-            // data.map((item: any) => {
+            var templist: any[] = [];
+            data.map((item: any) => {
 
-            //   var tempitem = {
-            //     category_id: item.category_id,
-            //     category_type: item.category_type,
-            //     category_icon: item.category_icon,
-            //     category_name: item.category_name,
-            //     category_iconplusname: item.category_icon + " " + item.category_name,
-            //     category_remark: item.category_remark
-            //   };
+              var tempitem = {
+                "seat_id": item.seat_id,
+                "seat_no_array": JSON.parse(item.seat_no_array)['data'],
+                "trip_id": item.trip_id,
+                "sub_route_id": item.sub_route_id,
+                "seat_status": item.seat_status,
+                "total_price": item.total_price,
+                "customer_name": item.customer_name,
+                "discount": item.discount,
+                "phone": item.phone,
+                "gender": item.gender,
+                "pickup_place": item.pickup_place,
+                "remark": item.remark,
+                "userid": item.userid,
+                "seat_isdeleted": item.seat_isdeleted,
+              };
 
-            //   templist.push(tempitem);
+              templist.push(tempitem);
 
-            // });
+            });
 
-            // data = templist;
+            data = templist;
             const returncode = "200";
             const message = "Seat List"
 

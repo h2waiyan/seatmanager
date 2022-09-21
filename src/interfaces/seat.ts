@@ -2,7 +2,7 @@ export interface SeatManager {
     userid: string;
 
     seat_id : string;
-    seat_no_array : string;
+    seat_no_array : any;
     trip_id: string;
     sub_route_id : string;
     seat_status : string;
