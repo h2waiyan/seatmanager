@@ -11,9 +11,9 @@ async function startServer() {
 
   await require('./loaders').default({ expressApp: app });
 
-  var port = 5000;
+  const port = process.env.PORT || 8080;
 
-  app.listen(port, '0.0.0.0', () => {
+  app.listen(port, () => {
     console.log(`
     ################################################
     Server listening on port: ${port} 
