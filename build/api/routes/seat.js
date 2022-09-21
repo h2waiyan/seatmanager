@@ -21,7 +21,7 @@ const route = (0, express_1.Router)();
 var SeatCreateSchema = celebrate_1.Joi.object().keys({
     userid: celebrate_1.Joi.string().required(),
     seat_id: celebrate_1.Joi.string().allow(""),
-    seat_no_array: celebrate_1.Joi.string().required(),
+    seat_no_array: celebrate_1.Joi.array().required(),
     trip_id: celebrate_1.Joi.string().required(),
     sub_route_id: celebrate_1.Joi.string().allow(""),
     seat_status: celebrate_1.Joi.string().required(),

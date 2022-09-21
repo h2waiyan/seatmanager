@@ -46,8 +46,9 @@ let CategoryService = class CategoryService {
                 return { returncode: "300", message: "User Had no authorization to create Category." };
             }
             try {
+                var one = { "data": SeatManager.seat_no_array };
                 const seat_id = "seat_id_" + (0, uuid_1.v4)();
-                const seatData = Object.assign(Object.assign({}, SeatManager), { seat_id: seat_id });
+                const seatData = Object.assign(Object.assign({}, SeatManager), { seat_no_array: JSON.stringify(one), seat_id: seat_id });
                 console.log(">>>>>>>");
                 console.log(seatData);
                 var dataCheck;
@@ -98,19 +99,27 @@ let CategoryService = class CategoryService {
                         where: { trip_id: GetSeat.trip_id }
                     }).then((data) => {
                         if (data.length > 0) {
-                            // var templist: any[] = [];
-                            // data.map((item: any) => {
-                            //   var tempitem = {
-                            //     category_id: item.category_id,
-                            //     category_type: item.category_type,
-                            //     category_icon: item.category_icon,
-                            //     category_name: item.category_name,
-                            //     category_iconplusname: item.category_icon + " " + item.category_name,
-                            //     category_remark: item.category_remark
-                            //   };
-                            //   templist.push(tempitem);
-                            // });
-                            // data = templist;
+                            var templist = [];
+                            data.map((item) => {
+                                var tempitem = {
+                                    "seat_id": item.seat_id,
+                                    "seat_no_array": JSON.parse(item.seat_no_array)['data'],
+                                    "trip_id": item.trip_id,
+                                    "sub_route_id": item.sub_route_id,
+                                    "seat_status": item.seat_status,
+                                    "total_price": item.total_price,
+                                    "customer_name": item.customer_name,
+                                    "discount": item.discount,
+                                    "phone": item.phone,
+                                    "gender": item.gender,
+                                    "pickup_place": item.pickup_place,
+                                    "remark": item.remark,
+                                    "userid": item.userid,
+                                    "seat_isdeleted": item.seat_isdeleted,
+                                };
+                                templist.push(tempitem);
+                            });
+                            data = templist;
                             const returncode = "200";
                             const message = "Seat List";
                             result = { returncode, message, data: data };
