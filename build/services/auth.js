@@ -102,7 +102,6 @@ let AuthService = class AuthService {
             }
         });
     }
-    //user sign in -> userid, password
     SignIn(UserLogin) {
         return __awaiter(this, void 0, void 0, function* () {
             var userRecord;

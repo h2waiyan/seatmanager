@@ -41,7 +41,7 @@ exports.default = {
     //   acquire: 30000,
     //   idle: 10000
     // }
-    HOST: "tastytest.database.windows.net",
+    HOST: "ts-db-hwy.database.windows.net",
     USER: "htoowaiyan",
     PASSWORD: "p@s2w0Rd",
     DB: "heingp",

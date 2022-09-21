@@ -9,7 +9,22 @@ export default async ({ expressApp }: { expressApp: any }) => {
     model: require('../models/user'),
   };
 
-  const hashedPassword = await argon2.hash('admin');
+  const tripModel = {
+    name: 'tripModel',
+    model : require('../models/trip'),
+  }
+
+  const seatModel = {
+    name: 'seatModel',
+    model: require('../models/seat'),
+  };
+
+  const gatedateModel = {
+    name: 'gatedateModel',
+    model: require('../models/gate_date'),
+  };
+
+  const hashedPassword = await argon2.hash('TastySoft@091');
   // create table
   // userModel.model.sequelize.sync();
   
@@ -43,6 +58,9 @@ export default async ({ expressApp }: { expressApp: any }) => {
   await dependencyInjectorLoader({
     models: [
       userModel,
+      tripModel,
+      seatModel,
+      gatedateModel
     ],
   });
 

@@ -108,7 +108,6 @@ export default class AuthService {
     }
   }
 
-  //user sign in -> userid, password
   public async SignIn(UserLogin : UserLogin) {
 
     var userRecord: any;

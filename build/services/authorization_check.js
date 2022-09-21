@@ -26,10 +26,10 @@ let AuthroizationCheck = class AuthroizationCheck {
     constructor(userModel) {
         this.userModel = userModel;
     }
-    rootAdminCheck(req) {
+    rootAdminCheck(userid) {
         return __awaiter(this, void 0, void 0, function* () {
             var adminCheck;
-            yield this.userModel.services.findAll({ where: { userid: req.body.userid, isdeleted: false } }).then((data) => {
+            yield this.userModel.services.findAll({ where: { userid: userid, isdeleted: false } }).then((data) => {
                 if (data.length > 0) {
                     adminCheck = data[0];
                 }
@@ -42,10 +42,10 @@ let AuthroizationCheck = class AuthroizationCheck {
             }
         });
     }
-    adminCheck(req) {
+    adminCheck(userid) {
         return __awaiter(this, void 0, void 0, function* () {
             var adminCheck;
-            yield this.userModel.services.findAll({ where: { userid: req.body.userid, isdeleted: false } }).then((data) => {
+            yield this.userModel.services.findAll({ where: { userid: userid, isdeleted: false } }).then((data) => {
                 if (data.length > 0) {
                     adminCheck = data[0];
                 }
@@ -53,21 +53,56 @@ let AuthroizationCheck = class AuthroizationCheck {
             if (!adminCheck) {
                 return "admin-not-found";
             }
-            if (adminCheck.usertype == 3) {
+            if (adminCheck.usertype != 1 || adminCheck.usertype != 2) {
                 return "user-has-no-authorization";
             }
         });
     }
-    userCheck(req) {
+    userCheck(userid) {
         return __awaiter(this, void 0, void 0, function* () {
             var userCheck;
-            yield this.userModel.services.findAll({ where: { userid: req.body.userid, isdeleted: false } }).then((data) => {
+            yield this.userModel.services.findAll({ where: { userid: userid, isdeleted: false } }).then((data) => {
                 if (data.length > 0) {
                     userCheck = data[0];
                 }
             });
             if (!userCheck) {
                 return "user-not-found";
+            }
+            if (userCheck.usertype != 1 || userCheck.usertype != 2 || userCheck.usertype != 3) {
+                return "user-has-no-authorization";
+            }
+        });
+    }
+    agentCheck(userid) {
+        return __awaiter(this, void 0, void 0, function* () {
+            var userCheck;
+            yield this.userModel.services.findAll({ where: { userid: userid, isdeleted: false } }).then((data) => {
+                if (data.length > 0) {
+                    userCheck = data[0];
+                }
+            });
+            if (!userCheck) {
+                return "user-not-found";
+            }
+            if (userCheck.usertype != 1 || userCheck.usertype != 2 || userCheck.usertype != 3 || userCheck.usertype != 4) {
+                return "agent-has-no-authorization";
+            }
+        });
+    }
+    customerCheck(userid) {
+        return __awaiter(this, void 0, void 0, function* () {
+            var userCheck;
+            yield this.userModel.services.findAll({ where: { userid: userid, isdeleted: false } }).then((data) => {
+                if (data.length > 0) {
+                    userCheck = data[0];
+                }
+            });
+            if (!userCheck) {
+                return "user-not-found";
+            }
+            if (userCheck.usertype == 5) {
+                return "customer-has-no-authorization";
             }
         });
     }

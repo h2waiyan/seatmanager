@@ -20,7 +20,19 @@ exports.default = ({ expressApp }) => __awaiter(void 0, void 0, void 0, function
         name: 'userModel',
         model: require('../models/user'),
     };
-    const hashedPassword = yield argon2_1.default.hash('admin');
+    const tripModel = {
+        name: 'tripModel',
+        model: require('../models/trip'),
+    };
+    const seatModel = {
+        name: 'seatModel',
+        model: require('../models/seat'),
+    };
+    const gatedateModel = {
+        name: 'gatedateModel',
+        model: require('../models/gate_date'),
+    };
+    const hashedPassword = yield argon2_1.default.hash('TastySoft@091');
     // create table
     // userModel.model.sequelize.sync();
     userModel.model.sequelize.sync().then(function () {
@@ -47,6 +59,9 @@ exports.default = ({ expressApp }) => __awaiter(void 0, void 0, void 0, function
     yield (0, dependencyInjector_1.default)({
         models: [
             userModel,
+            tripModel,
+            seatModel,
+            gatedateModel
         ],
     });
     yield (0, express_1.default)({ app: expressApp });

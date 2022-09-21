@@ -7,7 +7,7 @@
     "dev": "ts-node-dev --respawn src/app.ts",
     "build": "tsc",
     "heroku-postbuild": "npm run build",
-    "start": "ts-node src/app.ts"
+    "start": "nodemon"
   },
   "author": "Htet Wai Yan",
   "license": "ISC",
@@ -19,6 +19,7 @@
     "@types/node": "^16.11.9",
     "@types/node-schedule": "^2.1.0",
     "@types/pg": "^8.6.5",
+    "@types/uuid": "^8.3.4",
     "@useoptic/express-middleware": "0.0.5",
     "argon2": "^0.28.2",
     "body-parser": "^1.19.0",
@@ -51,6 +52,7 @@
     "ts-node": "^10.4.0",
     "typedi": "^0.10.0",
     "typescript": "^4.5.2",
+    "uuid": "^9.0.0",
     "winston": "^3.3.3"
   },
   "devDependencies": {

@@ -28,82 +28,94 @@ const typedi_1 = require("typedi");
 const sequelize_1 = __importDefault(require("sequelize"));
 const authorization_check_1 = __importDefault(require("./authorization_check"));
 const typedi_2 = require("typedi");
-let CategoryService = class CategoryService {
-    constructor(keywordModel, userModel) {
-        this.keywordModel = keywordModel;
+const uuid_1 = require("uuid");
+let TripService = class TripService {
+    constructor(tripModel, userModel) {
+        this.tripModel = tripModel;
         this.userModel = userModel;
     }
-    // user create -> userid, category_id, category_type, category_name, category_remark
-    CreateKeyword(req) {
+    CreateTrip(TripInterface) {
         return __awaiter(this, void 0, void 0, function* () {
             var AuthrizationCheckService = typedi_2.Container.get(authorization_check_1.default);
-            var userRecord = yield AuthrizationCheckService.adminCheck(req);
+            var userRecord = yield AuthrizationCheckService.rootAdminCheck(TripInterface.userid);
             if (userRecord == "admin-not-found") {
-                return { returncode: "300", message: "User Not Found" };
+                return { returncode: "300", message: "Admin Not Found" };
             }
             if (userRecord == "user-has-no-authorization") {
-                return { returncode: "300", message: "User has no authorization to create keyword." };
+                return { returncode: "300", message: "User Had no authorization to create Category." };
             }
             try {
-                const keyword_id = "keyword_id_" + Math.floor(1000000000 + Math.random() * 9000000000) + Date.now();
-                const keywordData = Object.assign({ keyword_id }, req.body);
-                var dataCheck;
-                yield this.keywordModel.services.findAll({
-                    where: { keyword_id: keyword_id, keyword_isdeleted: false }
-                }).then((data) => {
-                    if (data.length > 0) {
-                        dataCheck = data[0];
+                var create_trip_list = [];
+                for (let date_index = 0; date_index < TripInterface.date.length; date_index++) {
+                    for (let route_index = 0; route_index < TripInterface.route_id.length; route_index++) {
+                        for (let car_type_index = 0; car_type_index < TripInterface.car_type_id.length; car_type_index++) {
+                            const trip_id = "trip_id_" + (0, uuid_1.v4)();
+                            const trip_data = {
+                                trip_id: trip_id,
+                                userid: TripInterface.userid,
+                                gate_id: TripInterface.gate_id,
+                                date: TripInterface.date[date_index],
+                                route_id: TripInterface.route_id[route_index],
+                                car_type_id: TripInterface.car_type_id[car_type_index],
+                                car_id: TripInterface.car_id,
+                                total_price: TripInterface.total_price,
+                                remark: TripInterface.remark,
+                                trip_isdeleted: TripInterface.trip_isdeleted,
+                            };
+                            create_trip_list.push(trip_data);
+                        }
                     }
-                });
-                if (dataCheck) {
-                    const returncode = "300";
-                    const message = "Keyword ID already exists. Try agian.";
-                    return { returncode, message };
                 }
+                console.log(">>>>>>");
+                console.log(create_trip_list);
+                var dataCheck;
                 var newRecord;
-                yield this.keywordModel.services.create(keywordData).then((data) => {
+                yield this.tripModel.services.bulkCreate(create_trip_list).then((data) => {
                     newRecord = data;
                 });
-                return { returncode: "200", message: "success" };
+                return { returncode: "200", message: "Success" };
             }
             catch (e) {
-                return { returncode: "300", message: "fail" };
+                console.log(e);
+                return { returncode: "300", message: "Fail" };
             }
         });
     }
     //to get category list -> userid, 
-    GetKeywords(req) {
+    GetTrips(GetTripInterface) {
         return __awaiter(this, void 0, void 0, function* () {
-            var AuthrizationCheckService = typedi_2.Container.get(authorization_check_1.default);
-            var userRecord = yield AuthrizationCheckService.userCheck(req);
-            if (userRecord == "user-not-found") {
-                return { returncode: "300", message: "User Not Found", data: {} };
-            }
             const Op = sequelize_1.default.Op;
             try {
+                var userRecord;
+                yield this.userModel.services.findAll({ where: { userid: GetTripInterface.userid } }).then((data) => {
+                    if (data.length > 0) {
+                        userRecord = data[0];
+                    }
+                });
+                if (!userRecord) {
+                    const returncode = "300";
+                    const message = "User Not Registered";
+                    var data;
+                    return { returncode, message, data };
+                }
                 try {
                     var result;
-                    yield this.keywordModel.services.findAll({ where: { keyword_isdeleted: false } }).then((data) => {
-                        if (data) {
+                    yield this.tripModel.services.findAll({
+                        where: { gate_id: GetTripInterface.gate_id,
+                            date: GetTripInterface.date,
+                            route_id: GetTripInterface.route_id
+                        }
+                    }).then((data) => {
+                        if (data.length > 0) {
                             const returncode = "200";
-                            const message = "Keyword List";
-                            var templist = [];
-                            data.map((item) => {
-                                var tempitem = {
-                                    keyword_id: item.keyword_id,
-                                    keyword_icon: item.keyword_icon,
-                                    keyword_name: item.keyword_name,
-                                    keyword_iconplusname: item.keyword_icon + " " + item.keyword_name
-                                };
-                                templist.push(tempitem);
-                            });
-                            result = { returncode, message, data: templist };
+                            const message = "Trip List";
+                            result = { returncode, message, data: data };
                         }
                         else {
                             const returncode = "300";
-                            const message = "Keyword list not found";
+                            const message = "Trip List Not Found";
                             var data;
-                            result = { returncode, message, data };
+                            result = { returncode, message, data: {} };
                         }
                     });
                     return result;
@@ -119,35 +131,33 @@ let CategoryService = class CategoryService {
             }
         });
     }
-    EditKeyword(req) {
+    editCategory(TripInterface) {
         return __awaiter(this, void 0, void 0, function* () {
             var AuthrizationCheckService = typedi_2.Container.get(authorization_check_1.default);
-            var userRecord = yield AuthrizationCheckService.adminCheck(req);
+            var userRecord = yield AuthrizationCheckService.rootAdminCheck(TripInterface.userid);
             if (userRecord == "admin-not-found") {
                 return { returncode: "300", message: "User Not Found" };
             }
             if (userRecord == "user-has-no-authorization") {
-                return { returncode: "300", message: "User Had no authorization to edit keyword." };
+                return { returncode: "300", message: "User Had no authorization to create Category." };
             }
             const Op = sequelize_1.default.Op;
             try {
                 var result;
-                var filter = { keyword_id: req.body.keyword_id, keyword_isdeleted: false };
+                var filter = { trip_id: TripInterface.trip_id, category_isdeleted: false };
                 var update = {
-                    keyword_icon: req.body.keyword_icon,
-                    keyword_name: req.body.keyword_name,
-                    keyword_isdeleted: req.body.keyword_isdeleted
+                    category_isdeleted: TripInterface.trip_isdeleted
                 };
-                yield this.keywordModel.services
+                yield this.tripModel.services
                     .update(update, {
                     where: filter,
                 }).then((data) => {
                     if (data) {
                         if (data == 1) {
-                            result = { returncode: "200", message: 'Keyword Updated successfully' };
+                            result = { returncode: "200", message: 'Category Updated successfully' };
                         }
                         else {
-                            result = { returncode: "300", message: 'Error upading or deleting Keyword' };
+                            result = { returncode: "300", message: 'Error upading or deleting category' };
                         }
                     }
                 });
@@ -160,10 +170,10 @@ let CategoryService = class CategoryService {
         });
     }
 };
-CategoryService = __decorate([
+TripService = __decorate([
     (0, typedi_1.Service)(),
-    __param(0, (0, typedi_1.Inject)('keywordModel')),
+    __param(0, (0, typedi_1.Inject)('tripModel')),
     __param(1, (0, typedi_1.Inject)('userModel')),
     __metadata("design:paramtypes", [Object, Object])
-], CategoryService);
-exports.default = CategoryService;
+], TripService);
+exports.default = TripService;
