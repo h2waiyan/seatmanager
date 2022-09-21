@@ -11,12 +11,12 @@ async function startServer() {
 
   await require('./loaders').default({ expressApp: app });
 
-  var port = 5000;
+  var port = 8080;
 
   app.listen(port, '0.0.0.0', () => {
     console.log(`
     ################################################
-    Server listening on port: 5000 
+    Server listening on port: ${port} 
     ################################################`)
 
   }).on('error', err => {
