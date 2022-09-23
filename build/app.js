@@ -20,9 +20,10 @@ function startServer() {
         const app = (0, express_1.default)();
         // const loader1 = await loader({expressApp: app})
         yield require('./loaders').default({ expressApp: app });
-        var port = 8080;
-        app.listen(port, '0.0.0.0', () => {
+        const port = process.env.PORT || 5000;
+        app.listen(port, () => {
             console.log(`
+    12233444
     ################################################
     Server listening on port: ${port} 
     ################################################`);

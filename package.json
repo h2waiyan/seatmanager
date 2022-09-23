@@ -5,7 +5,7 @@
   "main": "src/app.ts",
   "scripts": {
     "dev": "ts-node-dev --respawn src/app.ts",
-    "build": "tsc && cp .env ./build/.env",
+    "build": "tsc",
     "heroku-postbuild": "npm run build",
     "start": "node build/app.js"
   },
