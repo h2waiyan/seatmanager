@@ -29,12 +29,12 @@ export default class CategoryService {
 
     try {
 
-      var one = { "data" : SeatManager.seat_no_array }
+      var seat_nos = { "data": SeatManager.seat_no_array }
 
       const seat_id = "seat_id_" + uuidv4();
       const seatData = {
         ...SeatManager,
-        seat_no_array : JSON.stringify(one),
+        seat_no_array: JSON.stringify(seat_nos),
         seat_id: seat_id,
       }
 
@@ -100,9 +100,9 @@ export default class CategoryService {
 
         await this.seatModel.services.findAll({
           where:
-            { trip_id : GetSeat.trip_id }
+            { trip_id: GetSeat.trip_id }
         }).then((data: any) => {
-  
+
           if (data.length > 0) {
 
             var templist: any[] = [];
@@ -133,12 +133,12 @@ export default class CategoryService {
             const returncode = "200";
             const message = "Seat List"
 
-            result = { returncode, message, data : data };
+            result = { returncode, message, data: data };
           } else {
             const returncode = "300";
             const message = "Seat list not found"
             var data: any;
-            result = { returncode, message, data : {} };
+            result = { returncode, message, data: {} };
           }
         });
         return result;
@@ -157,29 +157,42 @@ export default class CategoryService {
     }
   }
 
-  public async editCategory(SeatManager
-    : SeatManager): Promise<{ returncode: string, message: string }> {
+  public async editSeat(SeatManager
+    : SeatManager): Promise<{ returncode: string, message: string, data: any }> {
 
     var AuthrizationCheckService = Container.get(AuthroizationCheck);
     var userRecord = await AuthrizationCheckService.rootAdminCheck(SeatManager.userid);
 
     if (userRecord == "admin-not-found") {
-      return { returncode: "300", message: "User Not Found" }
+      return { returncode: "300", message: "User Not Found", data: {} }
     }
 
     if (userRecord == "user-has-no-authorization") {
-      return { returncode: "300", message: "User Had no authorization to create Category." }
+      return { returncode: "300", message: "User Had no authorization to create Category.", data: {} }
     }
+
 
     const Op = Sequelize.Op;
     try {
 
-      var result: any;
-      var filter = { category_id: SeatManager.seat_id, category_isdeleted: false };
-      var update = {
+    var seat_nos = { "data": SeatManager.seat_no_array }
 
-        category_isdeleted: SeatManager.seat_isdeleted
+      var result: any;
+      var filter = { trip_id: SeatManager.trip_id, seat_isdeleted: false };
+      var update = {
+        ...SeatManager,
+        seat_no_array: JSON.stringify(seat_nos),
+        seat_isdeleted: SeatManager.seat_isdeleted
       }
+
+      // if (SeatManager.seat_status == 4) {
+      //   if (SeatManager.customer_name == null || ""
+      //     || SeatManager.gender == null || ""
+      //   ) {
+      //     result = { returncode: "300", message: 'Customer အမည်နှင့် ကျား/မ ဖြည့်ပါ', data : {} };
+      //   }
+      //   return result;
+      // }
 
       await this.seatModel.services
         .update(update, {
@@ -187,9 +200,9 @@ export default class CategoryService {
         }).then((data: any) => {
           if (data) {
             if (data == 1) {
-              result = { returncode: "200", message: 'Category Updated successfully' };
+              result = { returncode: "200", message: 'Seat Updated successfully', data : {} };
             } else {
-              result = { returncode: "300", message: 'Error upading or deleting category' };
+              result = { returncode: "300", message: 'Error upading or deleting seat', data : {} };
             }
           }
         });

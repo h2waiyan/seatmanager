@@ -1,16 +1,3 @@
-// import dotenv from 'dotenv';
-
-
-
-// Set the NODE_ENV to 'development' by default
-// process.env.NODE_ENV = process.env.NODE_ENV || 'development'
-
-// const envFound = dotenv.config();
-
-// if(envFound.error){
-// This error will crash the whole process
-// throw new Error("⚠️  Couldn't find .env file  ⚠️");
-// }
 
 export default {
 
@@ -23,17 +10,9 @@ export default {
 
   LOG_LEVEL: 'debug',
 
-  // Server run port
-  // port: process.env.PORT || 3000,
-
-  // Mongodb database url
-  // databaseURL: process.env.MONGODB_URI || "",
-
-  // jwt secret key and hash algorithms
   jwtSecret: 'p4sta.w1th-b0logn3s3-s@uce',
   jwtAlgorithm: 'HS256',
 
-  //winston logger
   logs: {
     level: 'silly',
   },

@@ -5,13 +5,13 @@ export interface SeatManager {
     seat_no_array : any;
     trip_id: string;
     sub_route_id : string;
-    seat_status : string;
+    seat_status : number;
 
     customer_name : string;
     total_price : number;
     discount : number;
     phone: string;
-    gender : string;
+    gender : number;
     pickup_place :string;
     remark : string;
     
