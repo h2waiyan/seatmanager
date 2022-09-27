@@ -23,7 +23,7 @@ const seatModel = (sequelize, Sequelize) => {
             type: Sequelize.STRING,
         },
         seat_status: {
-            type: Sequelize.STRING,
+            type: Sequelize.INTEGER,
         },
         total_price: {
             type: Sequelize.INTEGER,
@@ -35,7 +35,7 @@ const seatModel = (sequelize, Sequelize) => {
             type: Sequelize.INTEGER,
         },
         phone: {
-            type: Sequelize.INTEGER,
+            type: Sequelize.STRING,
         },
         gender: {
             type: Sequelize.INTEGER,

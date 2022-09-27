@@ -46,9 +46,9 @@ let CategoryService = class CategoryService {
                 return { returncode: "300", message: "User Had no authorization to create Category." };
             }
             try {
-                var one = { "data": SeatManager.seat_no_array };
+                var seat_nos = { "data": SeatManager.seat_no_array };
                 const seat_id = "seat_id_" + (0, uuid_1.v4)();
-                const seatData = Object.assign(Object.assign({}, SeatManager), { seat_no_array: JSON.stringify(one), seat_id: seat_id });
+                const seatData = Object.assign(Object.assign({}, SeatManager), { seat_no_array: JSON.stringify(seat_nos), seat_id: seat_id });
                 console.log(">>>>>>>");
                 console.log(seatData);
                 var dataCheck;
@@ -144,33 +144,40 @@ let CategoryService = class CategoryService {
             }
         });
     }
-    editCategory(SeatManager) {
+    editSeat(SeatManager) {
         return __awaiter(this, void 0, void 0, function* () {
             var AuthrizationCheckService = typedi_2.Container.get(authorization_check_1.default);
             var userRecord = yield AuthrizationCheckService.rootAdminCheck(SeatManager.userid);
             if (userRecord == "admin-not-found") {
-                return { returncode: "300", message: "User Not Found" };
+                return { returncode: "300", message: "User Not Found", data: {} };
             }
             if (userRecord == "user-has-no-authorization") {
-                return { returncode: "300", message: "User Had no authorization to create Category." };
+                return { returncode: "300", message: "User Had no authorization to create Category.", data: {} };
             }
             const Op = sequelize_1.default.Op;
             try {
+                var seat_nos = { "data": SeatManager.seat_no_array };
                 var result;
-                var filter = { category_id: SeatManager.seat_id, category_isdeleted: false };
-                var update = {
-                    category_isdeleted: SeatManager.seat_isdeleted
-                };
+                var filter = { trip_id: SeatManager.trip_id, seat_isdeleted: false };
+                var update = Object.assign(Object.assign({}, SeatManager), { seat_no_array: JSON.stringify(seat_nos), seat_isdeleted: SeatManager.seat_isdeleted });
+                // if (SeatManager.seat_status == 4) {
+                //   if (SeatManager.customer_name == null || ""
+                //     || SeatManager.gender == null || ""
+                //   ) {
+                //     result = { returncode: "300", message: 'Customer အမည်နှင့် ကျား/မ ဖြည့်ပါ', data : {} };
+                //   }
+                //   return result;
+                // }
                 yield this.seatModel.services
                     .update(update, {
                     where: filter,
                 }).then((data) => {
                     if (data) {
                         if (data == 1) {
-                            result = { returncode: "200", message: 'Category Updated successfully' };
+                            result = { returncode: "200", message: 'Seat Updated successfully', data: {} };
                         }
                         else {
-                            result = { returncode: "300", message: 'Error upading or deleting category' };
+                            result = { returncode: "300", message: 'Error upading or deleting seat', data: {} };
                         }
                     }
                 });
