@@ -158,7 +158,7 @@ let CategoryService = class CategoryService {
             try {
                 var seat_nos = { "data": SeatManager.seat_no_array };
                 var result;
-                var filter = { trip_id: SeatManager.trip_id, seat_isdeleted: false };
+                var filter = { trip_id: SeatManager.trip_id, seat_id: SeatManager.seat_id, seat_isdeleted: false };
                 var update = Object.assign(Object.assign({}, SeatManager), { seat_no_array: JSON.stringify(seat_nos), seat_isdeleted: SeatManager.seat_isdeleted });
                 // if (SeatManager.seat_status == 4) {
                 //   if (SeatManager.customer_name == null || ""

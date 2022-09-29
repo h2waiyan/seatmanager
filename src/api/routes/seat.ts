@@ -34,6 +34,26 @@ var GetSeatsSchema = Joi.object().keys({
   trip_id: Joi.string().allow(""),
 });
 
+var EditSeatsSchema = Joi.object().keys({
+  userid: Joi.string().required(),
+
+  seat_id: Joi.string().required(),
+  seat_no_array: Joi.array().required(),
+  trip_id: Joi.string().required(),
+  sub_route_id: Joi.string().allow(""),
+  seat_status: Joi.number().required(),
+
+  total_price: Joi.number().allow(""),
+  customer_name: Joi.string().allow(""),
+  discount: Joi.number().allow(""),
+  phone: Joi.string().allow(""),
+  gender: Joi.number().allow(""),
+  pickup_place: Joi.string().allow(""),
+  remark: Joi.string().allow(""),
+
+  seat_isdeleted: Joi.boolean(),
+})
+
 
 export default (app: Router) => {
   app.use('/seats', route);
@@ -73,7 +93,7 @@ export default (app: Router) => {
   );
 
   route.post('/edit',
-  middlewares.validation(SeatCreateSchema),
+  middlewares.validation(EditSeatsSchema),
   middlewares.isAuth,
   middlewares.tokenCheck,
   async (req: Request, res: Response, next: NextFunction) => {

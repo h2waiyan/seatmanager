@@ -38,6 +38,22 @@ var GetSeatsSchema = celebrate_1.Joi.object().keys({
     userid: celebrate_1.Joi.string().required(),
     trip_id: celebrate_1.Joi.string().allow(""),
 });
+var EditSeatsSchema = celebrate_1.Joi.object().keys({
+    userid: celebrate_1.Joi.string().required(),
+    seat_id: celebrate_1.Joi.string().required(),
+    seat_no_array: celebrate_1.Joi.array().required(),
+    trip_id: celebrate_1.Joi.string().required(),
+    sub_route_id: celebrate_1.Joi.string().allow(""),
+    seat_status: celebrate_1.Joi.number().required(),
+    total_price: celebrate_1.Joi.number().allow(""),
+    customer_name: celebrate_1.Joi.string().allow(""),
+    discount: celebrate_1.Joi.number().allow(""),
+    phone: celebrate_1.Joi.string().allow(""),
+    gender: celebrate_1.Joi.number().allow(""),
+    pickup_place: celebrate_1.Joi.string().allow(""),
+    remark: celebrate_1.Joi.string().allow(""),
+    seat_isdeleted: celebrate_1.Joi.boolean(),
+});
 exports.default = (app) => {
     app.use('/seats', route);
     route.post('/create', middlewares_1.default.validation(SeatCreateSchema), middlewares_1.default.isAuth, middlewares_1.default.tokenCheck, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
@@ -60,7 +76,7 @@ exports.default = (app) => {
             return next(e);
         }
     }));
-    route.post('/edit', middlewares_1.default.validation(SeatCreateSchema), middlewares_1.default.isAuth, middlewares_1.default.tokenCheck, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    route.post('/edit', middlewares_1.default.validation(EditSeatsSchema), middlewares_1.default.isAuth, middlewares_1.default.tokenCheck, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
         try {
             const authServiceInstance = typedi_1.Container.get(seat_1.default);
             const { returncode, message, data } = yield authServiceInstance.editSeat(req.body);

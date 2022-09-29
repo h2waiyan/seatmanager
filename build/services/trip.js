@@ -131,33 +131,35 @@ let TripService = class TripService {
             }
         });
     }
-    editCategory(TripInterface) {
+    editTrip(TripInterface) {
         return __awaiter(this, void 0, void 0, function* () {
             var AuthrizationCheckService = typedi_2.Container.get(authorization_check_1.default);
             var userRecord = yield AuthrizationCheckService.rootAdminCheck(TripInterface.userid);
             if (userRecord == "admin-not-found") {
-                return { returncode: "300", message: "User Not Found" };
+                return { returncode: "300", message: "User Not Found", data: {} };
             }
             if (userRecord == "user-has-no-authorization") {
-                return { returncode: "300", message: "User Had no authorization to create Category." };
+                return { returncode: "300", message: "User Had no authorization to create Category.", data: {} };
             }
             const Op = sequelize_1.default.Op;
             try {
+                if (TripInterface.trip_id == "" || TripInterface.trip_id == null) {
+                    result = { returncode: "300", message: 'Trip ID cannot be blank', data: {} };
+                    return result;
+                }
                 var result;
-                var filter = { trip_id: TripInterface.trip_id, category_isdeleted: false };
-                var update = {
-                    category_isdeleted: TripInterface.trip_isdeleted
-                };
+                var filter = { trip_id: TripInterface.trip_id, trip_isdeleted: false };
+                var update = Object.assign(Object.assign({}, TripInterface), { trip_isdeleted: TripInterface.trip_isdeleted });
                 yield this.tripModel.services
                     .update(update, {
                     where: filter,
                 }).then((data) => {
                     if (data) {
                         if (data == 1) {
-                            result = { returncode: "200", message: 'Category Updated successfully' };
+                            result = { returncode: "200", message: 'Single Trip Updated successfully', data: {} };
                         }
                         else {
-                            result = { returncode: "300", message: 'Error upading or deleting category' };
+                            result = { returncode: "300", message: 'Error upading or deleting single trip', data: {} };
                         }
                     }
                 });

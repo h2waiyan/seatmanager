@@ -30,6 +30,21 @@ var GetTripSchema = Joi.object().keys({
 })
 
 
+var EditOneTripSchema = Joi.object().keys({
+    userid: Joi.string().required(),
+    trip_id: Joi.string().required(),
+
+    gate_id: Joi.string().required(),
+    date: Joi.string().required(),
+    route_id: Joi.string().required(),
+    car_type_id: Joi.string().required(),
+
+    car_id: Joi.string().allow(""),
+    total_price : Joi.number().allow(""),
+    remark: Joi.string().allow(""),
+    trip_isdeleted: Joi.boolean(),
+});
+
 export default (app: Router) => {
     app.use('/trips', route);
 
@@ -67,5 +82,22 @@ export default (app: Router) => {
             }
         },
     );
+
+    route.post('/single_edit',
+    middlewares.validation(EditOneTripSchema),
+    middlewares.isAuth,
+    middlewares.tokenCheck,
+    async (req: Request, res: Response, next: NextFunction) => {
+
+        try {
+            const authServiceInstance = Container.get(TripService);
+            const { returncode, message, data } = await authServiceInstance.editTrip(req.body as TripInterface);
+            return res.status(200).json({ returncode, message, data });
+
+        } catch (e) {
+            return next(e);
+        }
+    },
+);
 
 }

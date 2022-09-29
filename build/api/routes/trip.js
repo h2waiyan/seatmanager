@@ -36,6 +36,18 @@ var GetTripSchema = celebrate_1.Joi.object().keys({
     date: celebrate_1.Joi.string().required(),
     route_id: celebrate_1.Joi.string().required(),
 });
+var EditOneTripSchema = celebrate_1.Joi.object().keys({
+    userid: celebrate_1.Joi.string().required(),
+    trip_id: celebrate_1.Joi.string().required(),
+    gate_id: celebrate_1.Joi.string().required(),
+    date: celebrate_1.Joi.string().required(),
+    route_id: celebrate_1.Joi.string().required(),
+    car_type_id: celebrate_1.Joi.string().required(),
+    car_id: celebrate_1.Joi.string().allow(""),
+    total_price: celebrate_1.Joi.number().allow(""),
+    remark: celebrate_1.Joi.string().allow(""),
+    trip_isdeleted: celebrate_1.Joi.boolean(),
+});
 exports.default = (app) => {
     app.use('/trips', route);
     //Sign up
@@ -53,6 +65,16 @@ exports.default = (app) => {
         try {
             const authServiceInstance = typedi_1.Container.get(trip_1.default);
             const { returncode, message, data } = yield authServiceInstance.GetTrips(req.body);
+            return res.status(200).json({ returncode, message, data });
+        }
+        catch (e) {
+            return next(e);
+        }
+    }));
+    route.post('/single_edit', middlewares_1.default.validation(EditOneTripSchema), middlewares_1.default.isAuth, middlewares_1.default.tokenCheck, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+        try {
+            const authServiceInstance = typedi_1.Container.get(trip_1.default);
+            const { returncode, message, data } = yield authServiceInstance.editTrip(req.body);
             return res.status(200).json({ returncode, message, data });
         }
         catch (e) {
