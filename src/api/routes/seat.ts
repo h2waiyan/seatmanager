@@ -11,7 +11,7 @@ var SeatCreateSchema = Joi.object().keys({
 
   userid: Joi.string().required(),
 
-  seat_id: Joi.string().allow(""),
+  seat_id: Joi.array().allow(""),
   seat_no_array: Joi.array().required(),
   trip_id: Joi.string().required(),
   sub_route_id: Joi.string().allow(""),
@@ -37,8 +37,8 @@ var GetSeatsSchema = Joi.object().keys({
 var EditSeatsSchema = Joi.object().keys({
   userid: Joi.string().required(),
 
-  seat_id: Joi.string().required(),
-  seat_no_array: Joi.array().required(),
+  seat_id: Joi.array().required(),
+  seat_no_array: Joi.array(),
   trip_id: Joi.string().required(),
   sub_route_id: Joi.string().allow(""),
   seat_status: Joi.number().required(),
@@ -82,8 +82,8 @@ export default (app: Router) => {
     async (req: Request, res: Response, next: NextFunction) => {
 
       try {
-        const authServiceInstance = Container.get(SeatService);
-        const { returncode, message, data } = await authServiceInstance.GetSeats(req.body as GetSeat);
+        const SeatServiceInstance = Container.get(SeatService);
+        const { returncode, message, data } = await SeatServiceInstance.GetSeats(req.body as GetSeat);
         return res.status(200).json({ returncode, message, data });
 
       } catch (e) {
@@ -99,8 +99,8 @@ export default (app: Router) => {
   async (req: Request, res: Response, next: NextFunction) => {
 
     try {
-      const authServiceInstance = Container.get(SeatService);
-      const { returncode, message, data } = await authServiceInstance.editSeat(req.body as SeatManager);
+      const SeatServiceInstance = Container.get(SeatService);
+      const { returncode, message, data } = await SeatServiceInstance.editSeat(req.body as SeatManager);
       return res.status(200).json({ returncode, message, data });
 
     } catch (e) {

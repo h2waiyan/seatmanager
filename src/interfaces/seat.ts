@@ -1,7 +1,7 @@
 export interface SeatManager {
     userid: string;
 
-    seat_id : string;
+    seat_id : any;
     seat_no_array : any;
     trip_id: string;
     sub_route_id : string;

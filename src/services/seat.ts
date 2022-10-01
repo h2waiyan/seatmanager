@@ -1,9 +1,13 @@
 import { Service, Inject } from 'typedi';
-import Sequelize from "sequelize";
+// import { Sequelize } from "sequelize";
 import AuthroizationCheck from './authorization_check';
 import { Container } from 'typedi';
 import { GetSeat, SeatManager } from '../interfaces/seat';
 import { v4 as uuidv4 } from 'uuid';
+// const { Op } = require("sequelize");
+import Sequelize, { Model } from "sequelize";
+const Op = require('Sequelize').Op
+// import sequelize from '../sequelize';
 
 @Service()
 export default class CategoryService {
@@ -13,7 +17,6 @@ export default class CategoryService {
   ) {
   }
 
-  // user create -> userid, category_id, category_type, category_name, category_remark
   public async CreateSeat(SeatManager: SeatManager): Promise<{ returncode: string, message: string }> {
 
     var AuthrizationCheckService = Container.get(AuthroizationCheck);
@@ -29,38 +32,25 @@ export default class CategoryService {
 
     try {
 
-      var seat_nos = { "data": SeatManager.seat_no_array }
+      var seat_list: any = [];
 
-      const seat_id = "seat_id_" + uuidv4();
-      const seatData = {
-        ...SeatManager,
-        seat_no_array: JSON.stringify(seat_nos),
-        seat_id: seat_id,
+      for (let i = 0; i < SeatManager.seat_no_array.length; i++) {
+        const seat_id = "seat_id_" + uuidv4();
+
+        const seatData = {
+          ...SeatManager,
+          seat_id: seat_id,
+          seat_no_array: SeatManager.seat_no_array[i],
+        }
+
+        seat_list.push(seatData);
+
       }
-
-      console.log(">>>>>>>");
-      console.log(seatData);
 
       var dataCheck: any;
 
-      // await this.seatModel.services.findAll({
-      //   where:
-      //     { seat_id: seat_id, seat_isdeleted: false }
-      // }).then((data: any) => {
-
-      //   if (data.length > 0) {
-      //     dataCheck = data[0]
-      //   }
-      // })
-
-      // if (dataCheck) {
-      //   const returncode = "300";
-      //   const message = "Seat ID already exists. Try agian."
-      //   return { returncode, message };
-      // }
-
       var newRecord: any;
-      await this.seatModel.services.create(seatData).then(
+      await this.seatModel.services.bulkCreate(seat_list).then(
         (data: any) => {
           newRecord = data
         }
@@ -103,14 +93,27 @@ export default class CategoryService {
             { trip_id: GetSeat.trip_id }
         }).then((data: any) => {
 
+          console.log("------");
+          console.log(data);
+          
+
           if (data.length > 0) {
+
+            console.log("0000000");
+            console.log(data);
+            
 
             var templist: any[] = [];
             data.map((item: any) => {
 
+
+              console.log("????????");
+              
+              console.log(item);
+
               var tempitem = {
                 "seat_id": item.seat_id,
-                "seat_no_array": JSON.parse(item.seat_no_array)['data'],
+                "seat_no_array": item.seat_no_array,
                 "trip_id": item.trip_id,
                 "sub_route_id": item.sub_route_id,
                 "seat_status": item.seat_status,
@@ -171,17 +174,23 @@ export default class CategoryService {
       return { returncode: "300", message: "User Had no authorization to create Category.", data: {} }
     }
 
-
-    const Op = Sequelize.Op;
     try {
 
-    var seat_nos = { "data": SeatManager.seat_no_array }
-
       var result: any;
-      var filter = { trip_id : SeatManager.trip_id, seat_id: SeatManager.seat_id, seat_isdeleted: false };
+      var filter = { trip_id: SeatManager.trip_id, seat_id: { [Op.or]: SeatManager.seat_id }, seat_isdeleted: false };
+
       var update = {
-        ...SeatManager,
-        seat_no_array: JSON.stringify(seat_nos),
+        trip_id: SeatManager.trip_id,
+        sub_route_id: SeatManager.sub_route_id,
+        seat_status: SeatManager.seat_status,
+        total_price: SeatManager.total_price,
+        customer_name: SeatManager.customer_name,
+        discount: SeatManager.discount,
+        phone: SeatManager.phone,
+        gender: SeatManager.gender,
+        pickup_place: SeatManager.pickup_place,
+        remark: SeatManager.remark,
+        userid: SeatManager.userid,
         seat_isdeleted: SeatManager.seat_isdeleted
       }
 
@@ -194,19 +203,44 @@ export default class CategoryService {
       //   return result;
       // }
 
-      await this.seatModel.services
-        .update(update, {
-          where: filter,
-        }).then((data: any) => {
-          if (data) {
-            if (data == 1) {
-              result = { returncode: "200", message: 'Seat Updated successfully', data : {} };
-            } else {
-              result = { returncode: "300", message: 'Error upading or deleting seat', data : {} };
+      if (SeatManager.seat_status != 1) {
+
+        await this.seatModel.services
+          .update(update, {
+            where: filter,
+          }).then((data: any) => {
+            if (data) {
+              console.log(">>>>>>>>>", data);
+              if (data > 0) {
+                result = { returncode: "200", message: 'Seat Updated successfully', data: {} };
+              } else {
+                result = { returncode: "300", message: 'Error Upading Seat', data: {} };
+              }
             }
-          }
-        });
+            
+          });
+
+      } else {
+        await this.seatModel.services
+          .destroy({
+            where: filter,
+          }).then((data: any) => {
+            console.log(data);
+            
+            if (data) {
+              console.log(">>>>>>>>>", data);
+              if (data > 0) {
+                result = { returncode: "200", message: 'Seat Deleted successfully', data: {} };
+              } else {
+                result = { returncode: "300", message: 'Error Deleting Seat', data: {} };
+              }
+            }
+          });
+
+        }
+      
       return result;
+
     } catch (e) {
       console.log(e);
       throw e;
