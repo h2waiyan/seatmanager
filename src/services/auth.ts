@@ -148,6 +148,7 @@ export default class AuthService {
         "usertype": userRecord.usertype,
         "username": userRecord.username,
         "remark": userRecord.remark,
+        "gateid" : userRecord.gate_id
       };
 
       if ( UserLogin.fcmtoken == undefined || ""){
