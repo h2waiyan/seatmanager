@@ -25,16 +25,18 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const typedi_1 = require("typedi");
-const sequelize_1 = __importDefault(require("sequelize"));
+// import { Sequelize } from "sequelize";
 const authorization_check_1 = __importDefault(require("./authorization_check"));
 const typedi_2 = require("typedi");
 const uuid_1 = require("uuid");
+const Op = require('Sequelize').Op;
+// import sequelize from '../sequelize';
 let CategoryService = class CategoryService {
-    constructor(seatModel, userModel) {
+    constructor(seatModel, tripModel, userModel) {
         this.seatModel = seatModel;
+        this.tripModel = tripModel;
         this.userModel = userModel;
     }
-    // user create -> userid, category_id, category_type, category_name, category_remark
     CreateSeat(SeatManager) {
         return __awaiter(this, void 0, void 0, function* () {
             var AuthrizationCheckService = typedi_2.Container.get(authorization_check_1.default);
@@ -46,30 +48,30 @@ let CategoryService = class CategoryService {
                 return { returncode: "300", message: "User Had no authorization to create Category." };
             }
             try {
-                var seat_nos = { "data": SeatManager.seat_no_array };
-                const seat_id = "seat_id_" + (0, uuid_1.v4)();
-                const seatData = Object.assign(Object.assign({}, SeatManager), { seat_no_array: JSON.stringify(seat_nos), seat_id: seat_id });
-                console.log(">>>>>>>");
-                console.log(seatData);
-                var dataCheck;
-                // await this.seatModel.services.findAll({
-                //   where:
-                //     { seat_id: seat_id, seat_isdeleted: false }
-                // }).then((data: any) => {
-                //   if (data.length > 0) {
-                //     dataCheck = data[0]
-                //   }
-                // })
-                // if (dataCheck) {
-                //   const returncode = "300";
-                //   const message = "Seat ID already exists. Try agian."
-                //   return { returncode, message };
-                // }
-                var newRecord;
-                yield this.seatModel.services.create(seatData).then((data) => {
-                    newRecord = data;
-                });
-                return { returncode: "200", message: "Success" };
+                var seat_list = [];
+                for (let i = 0; i < SeatManager.seat_no_array.length; i++) {
+                    const seat_id = "seat_id_" + (0, uuid_1.v4)();
+                    const seatData = Object.assign(Object.assign({}, SeatManager), { seat_id: seat_id, seat_no_array: SeatManager.seat_no_array[i] });
+                    seat_list.push(seatData);
+                }
+                var update = {
+                    seat_and_status: JSON.stringify(SeatManager.seat_and_status)
+                };
+                console.log(update);
+                var filter = { trip_id: SeatManager.trip_id };
+                var [seat_create, trip_update] = yield Promise
+                    .all([
+                    this.seatModel.services.bulkCreate(seat_list),
+                    this.tripModel.services.update(update, { where: filter })
+                ]);
+                console.log(seat_create.length);
+                console.log(trip_update.length);
+                if (seat_create.length > 0 && trip_update.length > 0) {
+                    return { returncode: "200", message: "Success" };
+                }
+                else {
+                    return { returncode: "300", message: "Fail" };
+                }
             }
             catch (e) {
                 console.log(e);
@@ -99,11 +101,12 @@ let CategoryService = class CategoryService {
                         where: { trip_id: GetSeat.trip_id }
                     }).then((data) => {
                         if (data.length > 0) {
+                            console.log(data[0]);
                             var templist = [];
                             data.map((item) => {
                                 var tempitem = {
                                     "seat_id": item.seat_id,
-                                    "seat_no_array": JSON.parse(item.seat_no_array)['data'],
+                                    "seat_no_array": item.seat_no_array,
                                     "trip_id": item.trip_id,
                                     "sub_route_id": item.sub_route_id,
                                     "seat_status": item.seat_status,
@@ -154,12 +157,27 @@ let CategoryService = class CategoryService {
             if (userRecord == "user-has-no-authorization") {
                 return { returncode: "300", message: "User Had no authorization to create Category.", data: {} };
             }
-            const Op = sequelize_1.default.Op;
             try {
-                var seat_nos = { "data": SeatManager.seat_no_array };
                 var result;
-                var filter = { trip_id: SeatManager.trip_id, seat_id: SeatManager.seat_id, seat_isdeleted: false };
-                var update = Object.assign(Object.assign({}, SeatManager), { seat_no_array: JSON.stringify(seat_nos), seat_isdeleted: SeatManager.seat_isdeleted });
+                var seat_filter = { trip_id: SeatManager.trip_id, seat_id: { [Op.or]: SeatManager.seat_id }, seat_isdeleted: false };
+                var seat_update = {
+                    trip_id: SeatManager.trip_id,
+                    sub_route_id: SeatManager.sub_route_id,
+                    seat_status: SeatManager.seat_status,
+                    total_price: SeatManager.total_price,
+                    customer_name: SeatManager.customer_name,
+                    discount: SeatManager.discount,
+                    phone: SeatManager.phone,
+                    gender: SeatManager.gender,
+                    pickup_place: SeatManager.pickup_place,
+                    remark: SeatManager.remark,
+                    userid: SeatManager.userid,
+                    seat_isdeleted: SeatManager.seat_isdeleted
+                };
+                var trip_update = {
+                    seat_and_status: JSON.stringify(SeatManager.seat_and_status)
+                };
+                var trip_filter = { trip_id: SeatManager.trip_id };
                 // if (SeatManager.seat_status == 4) {
                 //   if (SeatManager.customer_name == null || ""
                 //     || SeatManager.gender == null || ""
@@ -168,19 +186,39 @@ let CategoryService = class CategoryService {
                 //   }
                 //   return result;
                 // }
-                yield this.seatModel.services
-                    .update(update, {
-                    where: filter,
-                }).then((data) => {
-                    if (data) {
-                        if (data == 1) {
-                            result = { returncode: "200", message: 'Seat Updated successfully', data: {} };
-                        }
-                        else {
-                            result = { returncode: "300", message: 'Error upading or deleting seat', data: {} };
-                        }
+                if (SeatManager.seat_status != 1) {
+                    var [seat_edit, seat_and_status_update] = yield Promise
+                        .all([
+                        this.seatModel.services.update(seat_update, { where: seat_filter }),
+                        this.tripModel.services.update(trip_update, { where: trip_filter })
+                    ]);
+                    if (seat_edit.length > 0 && seat_and_status_update.length > 0) {
+                        result = { returncode: "200", message: 'Seat Updated successfully', data: {} };
                     }
-                });
+                    else {
+                        result = { returncode: "300", message: 'Error Upading Seat', data: {} };
+                    }
+                }
+                else if (SeatManager.seat_status == 1 && SeatManager.car_type == "1") {
+                    // for back of the back which is called nout-phone
+                }
+                else {
+                    yield this.seatModel.services
+                        .destroy({
+                        where: seat_filter,
+                    }).then((data) => {
+                        console.log(data);
+                        if (data) {
+                            console.log(">>>>>>>>>", data);
+                            if (data > 0) {
+                                result = { returncode: "200", message: 'Seat Deleted successfully', data: {} };
+                            }
+                            else {
+                                result = { returncode: "300", message: 'Error Deleting Seat', data: {} };
+                            }
+                        }
+                    });
+                }
                 return result;
             }
             catch (e) {
@@ -193,7 +231,8 @@ let CategoryService = class CategoryService {
 CategoryService = __decorate([
     (0, typedi_1.Service)(),
     __param(0, (0, typedi_1.Inject)('seatModel')),
-    __param(1, (0, typedi_1.Inject)('userModel')),
-    __metadata("design:paramtypes", [Object, Object])
+    __param(1, (0, typedi_1.Inject)('tripModel')),
+    __param(2, (0, typedi_1.Inject)('userModel')),
+    __metadata("design:paramtypes", [Object, Object, Object])
 ], CategoryService);
 exports.default = CategoryService;

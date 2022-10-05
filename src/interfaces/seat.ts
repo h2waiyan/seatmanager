@@ -7,6 +7,10 @@ export interface SeatManager {
     sub_route_id : string;
     seat_status : number;
 
+    car_type: string;
+
+    seat_and_status: any;
+
     customer_name : string;
     total_price : number;
     discount : number;

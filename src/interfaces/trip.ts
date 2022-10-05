@@ -6,6 +6,7 @@ export interface TripInterface {
     date : Array<string>;
     route_id : Array<string>;
     car_type_id : Array<string>;
+    seat_and_status: string;
 
     car_id : string;
     total_price : string;

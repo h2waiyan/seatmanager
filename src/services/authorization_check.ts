@@ -1,6 +1,6 @@
 import { Service, Inject } from 'typedi';
 import { Router, Request, Response, NextFunction } from 'express';
-import { user } from 'firebase-functions/v1/auth';
+
 
 @Service()
 export default class AuthroizationCheck {

@@ -20,11 +20,12 @@ const celebrate_1 = require("celebrate");
 const route = (0, express_1.Router)();
 var SeatCreateSchema = celebrate_1.Joi.object().keys({
     userid: celebrate_1.Joi.string().required(),
-    seat_id: celebrate_1.Joi.string().allow(""),
+    seat_id: celebrate_1.Joi.array().allow(""),
     seat_no_array: celebrate_1.Joi.array().required(),
     trip_id: celebrate_1.Joi.string().required(),
     sub_route_id: celebrate_1.Joi.string().allow(""),
     seat_status: celebrate_1.Joi.number().required(),
+    seat_and_status: celebrate_1.Joi.any().required(),
     total_price: celebrate_1.Joi.number().allow(""),
     customer_name: celebrate_1.Joi.string().allow(""),
     discount: celebrate_1.Joi.number().allow(""),
@@ -40,11 +41,12 @@ var GetSeatsSchema = celebrate_1.Joi.object().keys({
 });
 var EditSeatsSchema = celebrate_1.Joi.object().keys({
     userid: celebrate_1.Joi.string().required(),
-    seat_id: celebrate_1.Joi.string().required(),
-    seat_no_array: celebrate_1.Joi.array().required(),
+    seat_id: celebrate_1.Joi.array().required(),
+    seat_no_array: celebrate_1.Joi.array(),
     trip_id: celebrate_1.Joi.string().required(),
     sub_route_id: celebrate_1.Joi.string().allow(""),
     seat_status: celebrate_1.Joi.number().required(),
+    seat_and_status: celebrate_1.Joi.any().required(),
     total_price: celebrate_1.Joi.number().allow(""),
     customer_name: celebrate_1.Joi.string().allow(""),
     discount: celebrate_1.Joi.number().allow(""),
@@ -68,8 +70,8 @@ exports.default = (app) => {
     }));
     route.post('/get', middlewares_1.default.validation(GetSeatsSchema), middlewares_1.default.isAuth, middlewares_1.default.tokenCheck, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
         try {
-            const authServiceInstance = typedi_1.Container.get(seat_1.default);
-            const { returncode, message, data } = yield authServiceInstance.GetSeats(req.body);
+            const SeatServiceInstance = typedi_1.Container.get(seat_1.default);
+            const { returncode, message, data } = yield SeatServiceInstance.GetSeats(req.body);
             return res.status(200).json({ returncode, message, data });
         }
         catch (e) {
@@ -78,8 +80,8 @@ exports.default = (app) => {
     }));
     route.post('/edit', middlewares_1.default.validation(EditSeatsSchema), middlewares_1.default.isAuth, middlewares_1.default.tokenCheck, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
         try {
-            const authServiceInstance = typedi_1.Container.get(seat_1.default);
-            const { returncode, message, data } = yield authServiceInstance.editSeat(req.body);
+            const SeatServiceInstance = typedi_1.Container.get(seat_1.default);
+            const { returncode, message, data } = yield SeatServiceInstance.editSeat(req.body);
             return res.status(200).json({ returncode, message, data });
         }
         catch (e) {

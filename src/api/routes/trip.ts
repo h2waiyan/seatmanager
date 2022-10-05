@@ -15,6 +15,7 @@ var TripCreateScehma = Joi.object().keys({
     date: Joi.array().required(),
     route_id: Joi.array().required(),
     car_type_id: Joi.array().required(),
+    seat_and_status: Joi.string().allow(""),
 
     car_id: Joi.string().allow(""),
     total_price : Joi.number().allow(""),
@@ -38,6 +39,7 @@ var EditOneTripSchema = Joi.object().keys({
     date: Joi.string().required(),
     route_id: Joi.string().required(),
     car_type_id: Joi.string().required(),
+    seat_and_status: Joi.string().allow(""),
 
     car_id: Joi.string().allow(""),
     total_price : Joi.number().allow(""),

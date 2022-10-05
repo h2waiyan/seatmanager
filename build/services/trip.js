@@ -101,12 +101,44 @@ let TripService = class TripService {
                 try {
                     var result;
                     yield this.tripModel.services.findAll({
-                        where: { gate_id: GetTripInterface.gate_id,
+                        where: {
+                            gate_id: GetTripInterface.gate_id,
                             date: GetTripInterface.date,
                             route_id: GetTripInterface.route_id
                         }
                     }).then((data) => {
                         if (data.length > 0) {
+                            console.log(data[0]);
+                            var templist = [];
+                            var vanlist = [];
+                            var noah7list = [];
+                            data.map((item) => {
+                                console.log(item.seat_and_status);
+                                console.log("___________");
+                                var seat_and_status_to_show = JSON.parse(item.seat_and_status);
+                                var tempitem = {
+                                    trip_id: item.trip_id,
+                                    route_id: item.route_id,
+                                    date: item.date,
+                                    gate_id: item.gate_id,
+                                    car_type_id: item.car_type_id,
+                                    car_id: item.car_id,
+                                    total_price: item.total_price,
+                                    userid: item.userid,
+                                    remark: item.remark,
+                                    trip_isdeleted: item.trip_isdeleted,
+                                    seat_and_status: seat_and_status_to_show,
+                                };
+                                // if (item.car_type_id == "1"){
+                                //   vanlist.push(tempitem);
+                                // }
+                                // if (item.car_type_id == "2") {
+                                //   noah7list.push(tempitem);
+                                // }
+                                templist.push(tempitem);
+                            });
+                            // templist.push( { van: vanlist, noah7 : noah7list } );
+                            data = templist;
                             const returncode = "200";
                             const message = "Trip List";
                             result = { returncode, message, data: data };

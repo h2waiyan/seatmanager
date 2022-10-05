@@ -38,18 +38,18 @@ export default class TripService {
             const trip_id = "trip_id_" + uuidv4();
 
             const trip_data = {
-              trip_id : trip_id,
+              trip_id: trip_id,
               userid: TripInterface.userid,
-              
+
               gate_id: TripInterface.gate_id,
               date: TripInterface.date[date_index],
-              route_id : TripInterface.route_id[route_index],
-              car_type_id : TripInterface.car_type_id[car_type_index],
+              route_id: TripInterface.route_id[route_index],
+              car_type_id: TripInterface.car_type_id[car_type_index],
 
-              car_id : TripInterface.car_id,
-              total_price : TripInterface.total_price,
+              car_id: TripInterface.car_id,
+              total_price: TripInterface.total_price,
 
-              remark : TripInterface.remark,
+              remark: TripInterface.remark,
               trip_isdeleted: TripInterface.trip_isdeleted,
             }
 
@@ -60,7 +60,7 @@ export default class TripService {
 
       console.log(">>>>>>");
       console.log(create_trip_list);
-      
+
       var dataCheck: any;
 
       var newRecord: any;
@@ -106,18 +106,65 @@ export default class TripService {
 
         await this.tripModel.services.findAll({
           where:
-            { gate_id : GetTripInterface.gate_id, 
-              date: GetTripInterface.date, 
-              route_id : GetTripInterface.route_id
-            }
+          {
+            gate_id: GetTripInterface.gate_id,
+            date: GetTripInterface.date,
+            route_id: GetTripInterface.route_id
+          }
         }).then((data: any) => {
 
           if (data.length > 0) {
+
+            console.log(data[0]);
+
+            var templist: any[] = [];
+            var vanlist : any[] = [];
+            var noah7list : any[] = [];
+
+            data.map((item: any) => {
+
+              console.log(item.seat_and_status);
+
+              console.log("___________");
+              
+              
+              var seat_and_status_to_show = JSON.parse(item.seat_and_status);
+              
+
+              var tempitem = {
+                trip_id: item.trip_id,
+                route_id: item.route_id,
+                date: item.date,
+                gate_id: item.gate_id,
+                car_type_id: item.car_type_id,
+                car_id: item.car_id,
+                total_price: item.total_price,
+                userid: item.userid,
+                remark: item.remark,
+                trip_isdeleted: item.trip_isdeleted,
+                seat_and_status: seat_and_status_to_show,
+              };
+
+              // if (item.car_type_id == "1"){
+              //   vanlist.push(tempitem);
+              // }
+
+              // if (item.car_type_id == "2") {
+              //   noah7list.push(tempitem);
+              // }
+              templist.push(tempitem)
+
+            });
+
+            // templist.push( { van: vanlist, noah7 : noah7list } );
+
+            data = templist;
             const returncode = "200";
             const message = "Trip List"
 
             result = { returncode, message, data: data };
-          } else {
+          }
+          else {
             const returncode = "300";
             const message = "Trip List Not Found"
             var data: any;
@@ -145,18 +192,18 @@ export default class TripService {
     var userRecord = await AuthrizationCheckService.rootAdminCheck(TripInterface.userid);
 
     if (userRecord == "admin-not-found") {
-      return { returncode: "300", message: "User Not Found", data : {} }
+      return { returncode: "300", message: "User Not Found", data: {} }
     }
 
     if (userRecord == "user-has-no-authorization") {
-      return { returncode: "300", message: "User Had no authorization to create Category." , data : {}}
+      return { returncode: "300", message: "User Had no authorization to create Category.", data: {} }
     }
 
     const Op = Sequelize.Op;
     try {
 
-      if (TripInterface.trip_id == "" || TripInterface.trip_id == null){
-        result = { returncode: "300", message: 'Trip ID cannot be blank', data : {} };
+      if (TripInterface.trip_id == "" || TripInterface.trip_id == null) {
+        result = { returncode: "300", message: 'Trip ID cannot be blank', data: {} };
         return result;
       }
 
@@ -173,9 +220,9 @@ export default class TripService {
         }).then((data: any) => {
           if (data) {
             if (data == 1) {
-              result = { returncode: "200", message: 'Single Trip Updated successfully', data : {} };
+              result = { returncode: "200", message: 'Single Trip Updated successfully', data: {} };
             } else {
-              result = { returncode: "300", message: 'Error upading or deleting single trip', data : {} };
+              result = { returncode: "300", message: 'Error upading or deleting single trip', data: {} };
             }
           }
         });

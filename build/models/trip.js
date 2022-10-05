@@ -27,6 +27,9 @@ const tripModel = (sequelize, Sequelize) => {
         car_type_id: {
             type: Sequelize.STRING,
         },
+        seat_and_status: {
+            type: Sequelize.STRING,
+        },
         car_id: {
             type: Sequelize.STRING,
         },

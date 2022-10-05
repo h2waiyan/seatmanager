@@ -4,11 +4,7 @@ import config from '../config';
 import argon2 from 'argon2';
 import { Router, Request, Response, NextFunction } from 'express';
 import jwt_decode from "jwt-decode";
-import AuthroizationCheck from './authorization_check';
-import { Container } from 'typedi';
 import { IUser, UserLogin } from '../interfaces/user';
-import { UserBuilder } from 'firebase-functions/v1/auth';
-
 
 declare module 'jsonwebtoken' {
   export interface UserIDJwtPayload extends jwt.JwtPayload {

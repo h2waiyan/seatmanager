@@ -5,7 +5,8 @@ import { Container } from 'typedi';
 import { GetSeat, SeatManager } from '../interfaces/seat';
 import { v4 as uuidv4 } from 'uuid';
 // const { Op } = require("sequelize");
-import Sequelize, { Model } from "sequelize";
+import Sequelize, { and, Model, where } from "sequelize";
+import { json } from 'body-parser';
 const Op = require('Sequelize').Op
 // import sequelize from '../sequelize';
 
@@ -13,6 +14,7 @@ const Op = require('Sequelize').Op
 export default class CategoryService {
   constructor(
     @Inject('seatModel') private seatModel: any,
+    @Inject('tripModel') private tripModel: any,
     @Inject('userModel') private userModel: any,
   ) {
   }
@@ -47,16 +49,33 @@ export default class CategoryService {
 
       }
 
-      var dataCheck: any;
+      var update = {
+        seat_and_status: JSON.stringify(SeatManager.seat_and_status)
+      };
 
-      var newRecord: any;
-      await this.seatModel.services.bulkCreate(seat_list).then(
-        (data: any) => {
-          newRecord = data
-        }
-      )
+      console.log(update);
 
-      return { returncode: "200", message: "Success" };
+      var filter = { trip_id: SeatManager.trip_id };
+
+      var [seat_create, trip_update] = await Promise
+        .all(
+          [
+            this.seatModel.services.bulkCreate(seat_list),
+            this.tripModel.services.update(update, { where: filter })
+          ]
+        )
+
+      console.log(seat_create.length);
+      console.log(trip_update.length);
+
+
+      if (seat_create.length > 0 && trip_update.length > 0) {
+        return { returncode: "200", message: "Success" };
+      } else {
+        return { returncode: "300", message: "Fail" };
+
+      }
+
 
     } catch (e) {
       console.log(e);
@@ -93,23 +112,13 @@ export default class CategoryService {
             { trip_id: GetSeat.trip_id }
         }).then((data: any) => {
 
-          console.log("------");
-          console.log(data);
-          
 
           if (data.length > 0) {
 
-            console.log("0000000");
-            console.log(data);
-            
-
+            console.log(data[0]);
+          
             var templist: any[] = [];
             data.map((item: any) => {
-
-
-              console.log("????????");
-              
-              console.log(item);
 
               var tempitem = {
                 "seat_id": item.seat_id,
@@ -177,9 +186,9 @@ export default class CategoryService {
     try {
 
       var result: any;
-      var filter = { trip_id: SeatManager.trip_id, seat_id: { [Op.or]: SeatManager.seat_id }, seat_isdeleted: false };
+      var seat_filter = { trip_id: SeatManager.trip_id, seat_id: { [Op.or]: SeatManager.seat_id }, seat_isdeleted: false };
 
-      var update = {
+      var seat_update = {
         trip_id: SeatManager.trip_id,
         sub_route_id: SeatManager.sub_route_id,
         seat_status: SeatManager.seat_status,
@@ -194,6 +203,11 @@ export default class CategoryService {
         seat_isdeleted: SeatManager.seat_isdeleted
       }
 
+      var trip_update = {
+        seat_and_status: JSON.stringify(SeatManager.seat_and_status)
+      }
+
+      var trip_filter = { trip_id : SeatManager.trip_id }
       // if (SeatManager.seat_status == 4) {
       //   if (SeatManager.customer_name == null || ""
       //     || SeatManager.gender == null || ""
@@ -205,28 +219,33 @@ export default class CategoryService {
 
       if (SeatManager.seat_status != 1) {
 
-        await this.seatModel.services
-          .update(update, {
-            where: filter,
-          }).then((data: any) => {
-            if (data) {
-              console.log(">>>>>>>>>", data);
-              if (data > 0) {
-                result = { returncode: "200", message: 'Seat Updated successfully', data: {} };
-              } else {
-                result = { returncode: "300", message: 'Error Upading Seat', data: {} };
-              }
-            }
-            
-          });
+        var [seat_edit , seat_and_status_update] = await Promise
+          .all(
+            [
+              this.seatModel.services.update(seat_update, { where: seat_filter }),
+              this.tripModel.services.update(trip_update, { where: trip_filter })
+            ]
+          )
 
-      } else {
+        if( seat_edit.length > 0 && seat_and_status_update.length > 0 ){
+          result = { returncode: "200", message: 'Seat Updated successfully', data: {} };
+        } else {
+          result = { returncode: "300", message: 'Error Upading Seat', data: {} };
+        }
+
+      }
+
+      else if (SeatManager.seat_status == 1 && SeatManager.car_type == "1") {
+        // for back of the back which is called nout-phone
+      }
+
+      else {
         await this.seatModel.services
           .destroy({
-            where: filter,
+            where: seat_filter,
           }).then((data: any) => {
             console.log(data);
-            
+
             if (data) {
               console.log(">>>>>>>>>", data);
               if (data > 0) {
@@ -237,8 +256,8 @@ export default class CategoryService {
             }
           });
 
-        }
-      
+      }
+
       return result;
 
     } catch (e) {
