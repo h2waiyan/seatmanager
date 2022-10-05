@@ -9,6 +9,7 @@ export interface SeatManager {
 
     car_type: string;
 
+    original_price: number;
     seat_and_status: any;
 
     customer_name : string;

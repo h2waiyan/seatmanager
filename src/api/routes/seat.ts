@@ -17,6 +17,7 @@ var SeatCreateSchema = Joi.object().keys({
   sub_route_id: Joi.string().allow(""),
   seat_status: Joi.number().required(),
 
+  original_price : Joi.number().required(),
   seat_and_status: Joi.any().required(),
 
   total_price: Joi.number().allow(""),
@@ -45,6 +46,7 @@ var EditSeatsSchema = Joi.object().keys({
   sub_route_id: Joi.string().allow(""),
   seat_status: Joi.number().required(),
 
+  original_price : Joi.number().required(),
   seat_and_status: Joi.any().required(),
 
   total_price: Joi.number().allow(""),

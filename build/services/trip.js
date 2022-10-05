@@ -113,8 +113,6 @@ let TripService = class TripService {
                             var vanlist = [];
                             var noah7list = [];
                             data.map((item) => {
-                                console.log(item.seat_and_status);
-                                console.log("___________");
                                 var seat_and_status_to_show = JSON.parse(item.seat_and_status);
                                 var tempitem = {
                                     trip_id: item.trip_id,

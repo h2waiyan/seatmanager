@@ -122,11 +122,6 @@ export default class TripService {
             var noah7list : any[] = [];
 
             data.map((item: any) => {
-
-              console.log(item.seat_and_status);
-
-              console.log("___________");
-              
               
               var seat_and_status_to_show = JSON.parse(item.seat_and_status);
               

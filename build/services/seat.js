@@ -49,15 +49,36 @@ let CategoryService = class CategoryService {
             }
             try {
                 var seat_list = [];
+                var trip_total_price = 0;
+                var seat_total_price = 0;
                 for (let i = 0; i < SeatManager.seat_no_array.length; i++) {
                     const seat_id = "seat_id_" + (0, uuid_1.v4)();
-                    const seatData = Object.assign(Object.assign({}, SeatManager), { seat_id: seat_id, seat_no_array: SeatManager.seat_no_array[i] });
+                    var seatData;
+                    if (SeatManager.seat_no_array[i] == 1) {
+                        seat_total_price = SeatManager.total_price + 3000;
+                        seatData = Object.assign(Object.assign({}, SeatManager), { seat_id: seat_id, seat_no_array: SeatManager.seat_no_array[i], total_price: seat_total_price });
+                    }
+                    else {
+                        seat_total_price = SeatManager.total_price;
+                        seatData = Object.assign(Object.assign({}, SeatManager), { seat_id: seat_id, seat_no_array: SeatManager.seat_no_array[i] });
+                    }
                     seat_list.push(seatData);
+                    trip_total_price = trip_total_price + seat_total_price;
                 }
-                var update = {
-                    seat_and_status: JSON.stringify(SeatManager.seat_and_status)
-                };
-                console.log(update);
+                trip_total_price = trip_total_price + SeatManager.original_price;
+                var update;
+                // buy
+                if (SeatManager.seat_status == 4) {
+                    update = {
+                        seat_and_status: JSON.stringify(SeatManager.seat_and_status),
+                        total_price: trip_total_price
+                    };
+                }
+                else {
+                    update = {
+                        seat_and_status: JSON.stringify(SeatManager.seat_and_status)
+                    };
+                }
                 var filter = { trip_id: SeatManager.trip_id };
                 var [seat_create, trip_update] = yield Promise
                     .all([
@@ -158,8 +179,37 @@ let CategoryService = class CategoryService {
                 return { returncode: "300", message: "User Had no authorization to create Category.", data: {} };
             }
             try {
+                var seat_id_list = [];
+                var seat_no_list = [];
+                var front_price = 0;
+                var front_id;
+                var front_seat_update;
+                var front_seat_filter;
+                for (var i = 0; i < SeatManager.seat_id.length; i++) {
+                    seat_id_list.push(SeatManager.seat_id[i]['seat_id']);
+                    seat_no_list.push(SeatManager.seat_id[i]['seat_no']);
+                    if (SeatManager.seat_id[i]['seat_no'] == 1) {
+                        front_price = front_price + SeatManager.total_price + 3000;
+                        front_seat_filter = { trip_id: SeatManager.trip_id, seat_id: SeatManager.seat_id[i]['seat_id'], seat_isdeleted: false };
+                        front_id = SeatManager.seat_id[i];
+                        front_seat_update = {
+                            trip_id: SeatManager.trip_id,
+                            sub_route_id: SeatManager.sub_route_id,
+                            seat_status: SeatManager.seat_status,
+                            total_price: front_price,
+                            customer_name: SeatManager.customer_name,
+                            discount: SeatManager.discount,
+                            phone: SeatManager.phone,
+                            gender: SeatManager.gender,
+                            pickup_place: SeatManager.pickup_place,
+                            remark: SeatManager.remark,
+                            userid: SeatManager.userid,
+                            seat_isdeleted: SeatManager.seat_isdeleted
+                        };
+                    }
+                }
                 var result;
-                var seat_filter = { trip_id: SeatManager.trip_id, seat_id: { [Op.or]: SeatManager.seat_id }, seat_isdeleted: false };
+                var seat_filter = { trip_id: SeatManager.trip_id, seat_id: { [Op.or]: seat_id_list }, seat_isdeleted: false };
                 var seat_update = {
                     trip_id: SeatManager.trip_id,
                     sub_route_id: SeatManager.sub_route_id,
@@ -174,19 +224,14 @@ let CategoryService = class CategoryService {
                     userid: SeatManager.userid,
                     seat_isdeleted: SeatManager.seat_isdeleted
                 };
+                var trip_total_price = seat_no_list.length * SeatManager.total_price;
                 var trip_update = {
-                    seat_and_status: JSON.stringify(SeatManager.seat_and_status)
+                    seat_and_status: JSON.stringify(SeatManager.seat_and_status),
+                    total_price: trip_total_price + SeatManager.original_price
                 };
                 var trip_filter = { trip_id: SeatManager.trip_id };
-                // if (SeatManager.seat_status == 4) {
-                //   if (SeatManager.customer_name == null || ""
-                //     || SeatManager.gender == null || ""
-                //   ) {
-                //     result = { returncode: "300", message: 'Customer အမည်နှင့် ကျား/မ ဖြည့်ပါ', data : {} };
-                //   }
-                //   return result;
-                // }
-                if (SeatManager.seat_status != 1) {
+                // 2-blocked and 3-booked
+                if (SeatManager.seat_status == 2 || SeatManager.seat_status == 3) {
                     var [seat_edit, seat_and_status_update] = yield Promise
                         .all([
                         this.seatModel.services.update(seat_update, { where: seat_filter }),
@@ -199,8 +244,48 @@ let CategoryService = class CategoryService {
                         result = { returncode: "300", message: 'Error Upading Seat', data: {} };
                     }
                 }
+                // 1-open and if နောက်ဖုံး
                 else if (SeatManager.seat_status == 1 && SeatManager.car_type == "1") {
                     // for back of the back which is called nout-phone
+                }
+                else if (SeatManager.seat_status == 4) {
+                    // if (SeatManager.customer_name == null || ""
+                    //   || SeatManager.gender == null || ""
+                    // ) {
+                    //   result = { returncode: "300", message: 'Customer အမည်နှင့် ကျား/မ ဖြည့်ပါ', data: {} };
+                    //   return result;
+                    // }
+                    if (seat_no_list.includes(1)) {
+                        trip_update = {
+                            seat_and_status: JSON.stringify(SeatManager.seat_and_status),
+                            total_price: trip_total_price + 3000 + SeatManager.original_price
+                        };
+                        var [seat_edit, seat_and_status_update] = yield Promise
+                            .all([
+                            this.seatModel.services.update(seat_update, { where: seat_filter }),
+                            this.tripModel.services.update(trip_update, { where: trip_filter }),
+                            this.seatModel.services.update(front_seat_update, { where: front_seat_filter }),
+                        ]);
+                        if (seat_edit.length > 0 && seat_and_status_update.length > 0) {
+                            result = { returncode: "200", message: 'Seat Updated successfully', data: {} };
+                        }
+                        else {
+                            result = { returncode: "300", message: 'Error Upading Seat', data: {} };
+                        }
+                    }
+                    else {
+                        var [seat_edit, seat_and_status_update] = yield Promise
+                            .all([
+                            this.seatModel.services.update(seat_update, { where: seat_filter }),
+                            this.tripModel.services.update(trip_update, { where: trip_filter })
+                        ]);
+                        if (seat_edit.length > 0 && seat_and_status_update.length > 0) {
+                            result = { returncode: "200", message: 'Seat Updated successfully', data: {} };
+                        }
+                        else {
+                            result = { returncode: "300", message: 'Error Upading Seat', data: {} };
+                        }
+                    }
                 }
                 else {
                     yield this.seatModel.services
