@@ -318,6 +318,11 @@ export default class CategoryService {
             seat_and_status: JSON.stringify(SeatManager.seat_and_status),
           }
 
+          console.log(
+            ">>>>>>> HERE >>>>>"
+          );
+          
+
           var [seat_delete, seat_and_status_update] = await Promise
             .all(
               [
@@ -326,7 +331,10 @@ export default class CategoryService {
               ]
             )
 
-          if (seat_delete.length > 0 && seat_and_status_update.length > 0) {
+          console.log(seat_delete);
+          console.log(seat_and_status_update);
+          
+          if (seat_delete > 0 && seat_and_status_update.length > 0) {
             result = { returncode: "200", message: 'Seat Updated successfully', data: {} };
           } else {
             result = { returncode: "300", message: 'Error Upading Seat', data: {} };
