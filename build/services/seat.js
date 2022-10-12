@@ -255,12 +255,15 @@ let CategoryService = class CategoryService {
                         var new_trip_update = {
                             seat_and_status: JSON.stringify(SeatManager.seat_and_status),
                         };
+                        console.log(">>>>>>> HERE >>>>>");
                         var [seat_delete, seat_and_status_update] = yield Promise
                             .all([
                             this.seatModel.services.destroy({ where: seat_filter }),
                             this.tripModel.services.update(new_trip_update, { where: trip_filter })
                         ]);
-                        if (seat_delete.length > 0 && seat_and_status_update.length > 0) {
+                        console.log(seat_delete);
+                        console.log(seat_and_status_update);
+                        if (seat_delete > 0 && seat_and_status_update.length > 0) {
                             result = { returncode: "200", message: 'Seat Updated successfully', data: {} };
                         }
                         else {
