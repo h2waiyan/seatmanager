@@ -44,9 +44,9 @@ export default class CategoryService {
 
         var seatData;
 
-        if (SeatManager.seat_no_array[i] == 1 ) {
+        if (SeatManager.seat_no_array[i] == 1) {
 
-          seat_total_price =  SeatManager.total_price + 3000;
+          seat_total_price = SeatManager.total_price + 3000;
 
           seatData = {
             ...SeatManager,
@@ -70,7 +70,7 @@ export default class CategoryService {
 
         seat_list.push(seatData);
 
-        trip_total_price =  trip_total_price + seat_total_price;
+        trip_total_price = trip_total_price + seat_total_price;
 
       }
 
@@ -281,7 +281,7 @@ export default class CategoryService {
 
       var trip_update = {
         seat_and_status: JSON.stringify(SeatManager.seat_and_status),
-        total_price : trip_total_price + SeatManager.original_price
+        total_price: trip_total_price + SeatManager.original_price
       }
 
       var trip_filter = { trip_id: SeatManager.trip_id }
@@ -305,11 +305,52 @@ export default class CategoryService {
 
       }
 
-      // 1-open and if နောက်ဖုံး
-      else if (SeatManager.seat_status == 1 && SeatManager.car_type == "1") {
+      // 1-open
+      else if (SeatManager.seat_status == 1) {
+
         // for back of the back which is called nout-phone
+        if (SeatManager.car_type == "1" && (seat_no_list.includes(5) || seat_no_list.includes(6) || seat_no_list.includes(7))) {
+          console.log("နောက်ဖုံးကိစ္စများ−−−−−−")
+        }
+        // book, blocked, sold ကို open ပြန်ပြောင်းတာ
+        else {
+          var new_trip_update = {
+            seat_and_status: JSON.stringify(SeatManager.seat_and_status),
+          }
+
+          var [seat_delete, seat_and_status_update] = await Promise
+            .all(
+              [
+                this.seatModel.services.destroy({ where: seat_filter }),
+                this.tripModel.services.update(new_trip_update, { where: trip_filter })
+              ]
+            )
+
+          if (seat_delete.length > 0 && seat_and_status_update.length > 0) {
+            result = { returncode: "200", message: 'Seat Updated successfully', data: {} };
+          } else {
+            result = { returncode: "300", message: 'Error Upading Seat', data: {} };
+          }
+
+          // await this.seatModel.services
+          //   .destroy({
+          //     where: seat_filter,
+          //   }).then((data: any) => {
+          //     console.log(data);
+
+          //     if (data) {
+          //       if (data > 0) {
+          //         result = { returncode: "200", message: 'Seat Deleted successfully', data: {} };
+          //       } else {
+          //         result = { returncode: "300", message: 'Error Deleting Seat', data: {} };
+          //       }
+          //     }
+          //   });
+        }
+
       }
 
+      // 4-sold
       else if (SeatManager.seat_status == 4) {
 
         // if (SeatManager.customer_name == null || ""
@@ -318,14 +359,14 @@ export default class CategoryService {
         //   result = { returncode: "300", message: 'Customer အမည်နှင့် ကျား/မ ဖြည့်ပါ', data: {} };
         //   return result;
         // }
-        
+
         if (seat_no_list.includes(1)) {
 
           trip_update = {
             seat_and_status: JSON.stringify(SeatManager.seat_and_status),
-            total_price : trip_total_price + 3000 + SeatManager.original_price
+            total_price: trip_total_price + 3000 + SeatManager.original_price
           }
-          
+
           var [seat_edit, seat_and_status_update] = await Promise
             .all(
               [
@@ -355,25 +396,6 @@ export default class CategoryService {
             result = { returncode: "300", message: 'Error Upading Seat', data: {} };
           }
         }
-
-      }
-
-      else {
-        await this.seatModel.services
-          .destroy({
-            where: seat_filter,
-          }).then((data: any) => {
-            console.log(data);
-
-            if (data) {
-              console.log(">>>>>>>>>", data);
-              if (data > 0) {
-                result = { returncode: "200", message: 'Seat Deleted successfully', data: {} };
-              } else {
-                result = { returncode: "300", message: 'Error Deleting Seat', data: {} };
-              }
-            }
-          });
 
       }
 
