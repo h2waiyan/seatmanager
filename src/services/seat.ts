@@ -38,6 +38,39 @@ export default class CategoryService {
       var trip_total_price = 0;
       var seat_total_price = 0;
 
+      if (SeatManager.car_type == "1") {
+        if (SeatManager.seat_no_array.includes('5') ||
+          SeatManager.seat_no_array.includes('6') ||
+          SeatManager.seat_no_array.includes('7')) {
+
+          for (let i = 0; i < SeatManager.seat_no_array.length; i++) {
+            const seat_id = "seat_id_" + uuidv4();
+            seatData = {
+              ...SeatManager,
+              seat_id: seat_id,
+              seat_no_array: SeatManager.seat_no_array[i],
+            }
+
+            seat_list.push(seatData)
+
+          }
+
+          var [seat_create] = await Promise
+            .all(
+              [
+                this.seatModel.services.bulkCreate(seat_list),
+              ]
+            )
+          if (seat_create.length > 0) {
+            return { returncode: "200", message: "Success" };
+          } else {
+            return { returncode: "300", message: "Fail" };
+
+          }
+        }
+      }
+
+
       for (let i = 0; i < SeatManager.seat_no_array.length; i++) {
 
         const seat_id = "seat_id_" + uuidv4();
@@ -99,9 +132,6 @@ export default class CategoryService {
             this.tripModel.services.update(update, { where: filter })
           ]
         )
-
-      console.log(seat_create.length);
-      console.log(trip_update.length);
 
 
       if (seat_create.length > 0 && trip_update.length > 0) {
@@ -321,7 +351,7 @@ export default class CategoryService {
           console.log(
             ">>>>>>> HERE >>>>>"
           );
-          
+
 
           var [seat_delete, seat_and_status_update] = await Promise
             .all(
@@ -333,7 +363,7 @@ export default class CategoryService {
 
           console.log(seat_delete);
           console.log(seat_and_status_update);
-          
+
           if (seat_delete > 0 && seat_and_status_update.length > 0) {
             result = { returncode: "200", message: 'Seat Updated successfully', data: {} };
           } else {
