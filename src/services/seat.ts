@@ -35,6 +35,7 @@ export default class CategoryService {
     try {
 
       var seat_list: any = [];
+      var backSeatList: any = [];
       var trip_total_price = 0;
       var seat_total_price = 0;
 
@@ -76,6 +77,7 @@ export default class CategoryService {
         const seat_id = "seat_id_" + uuidv4();
 
         var seatData;
+        var backSeatData;
 
         if (SeatManager.seat_no_array[i] == 1) {
 
@@ -88,19 +90,36 @@ export default class CategoryService {
             total_price: seat_total_price
           }
 
-        } else {
+        }
+        else {
 
-          seat_total_price = SeatManager.total_price;
 
-          seatData = {
-            ...SeatManager,
-            seat_id: seat_id,
-            seat_no_array: SeatManager.seat_no_array[i],
+          if (SeatManager.car_type == '1' &&
+            (SeatManager.seat_no_array[i] == 5 ||
+              SeatManager.seat_no_array[i] == 6 ||
+              SeatManager.seat_no_array[i] == 7)) {
+
+            seat_total_price = SeatManager.total_price;
+
+            backSeatData = {
+              ...SeatManager,
+              seat_id: seat_id,
+              seat_no_array: SeatManager.seat_no_array[i],
+            }
+
+          } else {
+            seat_total_price = SeatManager.total_price;
+
+            seatData = {
+              ...SeatManager,
+              seat_id: seat_id,
+              seat_no_array: SeatManager.seat_no_array[i],
+            }
           }
-
 
         }
 
+        backSeatList.push(backSeatData);
         seat_list.push(seatData);
 
         trip_total_price = trip_total_price + seat_total_price;
@@ -125,16 +144,17 @@ export default class CategoryService {
 
       var filter = { trip_id: SeatManager.trip_id };
 
-      var [seat_create, trip_update] = await Promise
+      var [seat_create, seat_edit, trip_update] = await Promise
         .all(
           [
             this.seatModel.services.bulkCreate(seat_list),
+            this.seatModel.services.update(backSeatList, { where : filter } ),
             this.tripModel.services.update(update, { where: filter })
           ]
         )
 
 
-      if (seat_create.length > 0 && trip_update.length > 0) {
+      if (seat_create.length > 0 && seat_edit.length > 0 && trip_update.length > 0) {
         return { returncode: "200", message: "Success" };
       } else {
         return { returncode: "300", message: "Fail" };
