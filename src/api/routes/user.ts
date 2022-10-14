@@ -10,12 +10,6 @@ export default (app: Router) => {
   
   app.use('/user', route);
 
-  route.get('/test',
-    (req: Request, res: Response, next: NextFunction) => {
-      return res.status(200).json({ returncode: 200, message: "OKKKKK" });
-    }
-  ),
-
     //Reset Password
     route.post('/updatepassword',
       middlewares.isAuth,

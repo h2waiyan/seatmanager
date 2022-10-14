@@ -353,6 +353,8 @@ export default class UserService {
                       userid: item.userid,
                       usertype: item.usertype,
                       username: item.username,
+                      gateid : item.gateid,
+                      servicefee : item.servicefee,
                       remark: item.remark
                     };
 

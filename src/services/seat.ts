@@ -38,37 +38,37 @@ export default class CategoryService {
       var trip_total_price = 0;
       var seat_total_price = 0;
 
-      if (SeatManager.car_type == "1") {
-        if (SeatManager.seat_no_array.includes('5') ||
-          SeatManager.seat_no_array.includes('6') ||
-          SeatManager.seat_no_array.includes('7')) {
+      // if (SeatManager.car_type == "1") {
+      //   if (SeatManager.seat_no_array.includes('5') ||
+      //     SeatManager.seat_no_array.includes('6') ||
+      //     SeatManager.seat_no_array.includes('7')) {
 
-          for (let i = 0; i < SeatManager.seat_no_array.length; i++) {
-            const seat_id = "seat_id_" + uuidv4();
-            seatData = {
-              ...SeatManager,
-              seat_id: seat_id,
-              seat_no_array: SeatManager.seat_no_array[i],
-            }
+      //     for (let i = 0; i < SeatManager.seat_no_array.length; i++) {
+      //       const seat_id = "seat_id_" + uuidv4();
+      //       seatData = {
+      //         ...SeatManager,
+      //         seat_id: seat_id,
+      //         seat_no_array: SeatManager.seat_no_array[i],
+      //       }
 
-            seat_list.push(seatData)
+      //       seat_list.push(seatData)
 
-          }
+      //     }
 
-          var [seat_create] = await Promise
-            .all(
-              [
-                this.seatModel.services.bulkCreate(seat_list),
-              ]
-            )
-          if (seat_create.length > 0) {
-            return { returncode: "200", message: "Success" };
-          } else {
-            return { returncode: "300", message: "Fail" };
+      //     var [seat_create] = await Promise
+      //       .all(
+      //         [
+      //           this.seatModel.services.bulkCreate(seat_list),
+      //         ]
+      //       )
+      //     if (seat_create.length > 0) {
+      //       return { returncode: "200", message: "Success" };
+      //     } else {
+      //       return { returncode: "300", message: "Fail" };
 
-          }
-        }
-      }
+      //     }
+      //   }
+      // }
 
 
       for (let i = 0; i < SeatManager.seat_no_array.length; i++) {
