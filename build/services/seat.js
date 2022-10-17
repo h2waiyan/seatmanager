@@ -52,32 +52,6 @@ let CategoryService = class CategoryService {
                 var backSeatList = [];
                 var trip_total_price = 0;
                 var seat_total_price = 0;
-                // if (SeatManager.car_type == "1") {
-                //   if (SeatManager.seat_no_array.includes('5') ||
-                //     SeatManager.seat_no_array.includes('6') ||
-                //     SeatManager.seat_no_array.includes('7')) {
-                //     for (let i = 0; i < SeatManager.seat_no_array.length; i++) {
-                //       const seat_id = "seat_id_" + uuidv4();
-                //       seatData = {
-                //         ...SeatManager,
-                //         seat_id: seat_id,
-                //         seat_no_array: SeatManager.seat_no_array[i],
-                //       }
-                //       seat_list.push(seatData)
-                //     }
-                //     var [seat_create] = await Promise
-                //       .all(
-                //         [
-                //           this.seatModel.services.bulkCreate(seat_list),
-                //         ]
-                //       )
-                //     if (seat_create.length > 0) {
-                //       return { returncode: "200", message: "Success" };
-                //     } else {
-                //       return { returncode: "300", message: "Fail" };
-                //     }
-                //   }
-                // }
                 for (let i = 0; i < SeatManager.seat_no_array.length; i++) {
                     const seat_id = "seat_id_" + (0, uuid_1.v4)();
                     var ref_id = "ref_id_" + Math.floor(1000000000 + Math.random() * 9000000000) + Date.now();
@@ -85,28 +59,18 @@ let CategoryService = class CategoryService {
                     var backSeatData;
                     if (SeatManager.seat_no_array[i] == 1) {
                         seat_total_price = SeatManager.total_price + 3000;
-                        seatData = Object.assign(Object.assign({}, SeatManager), { seat_id: seat_id, seat_no_array: SeatManager.seat_no_array[i], total_price: seat_total_price });
+                        seatData = Object.assign(Object.assign({}, SeatManager), { seat_id: seat_id, seat_no_array: SeatManager.seat_no_array[i], total_price: seat_total_price, ref_id: ref_id });
                     }
                     else {
-                        if (SeatManager.car_type == '1' &&
-                            (SeatManager.seat_no_array[i] == 5 ||
-                                SeatManager.seat_no_array[i] == 6 ||
-                                SeatManager.seat_no_array[i] == 7)) {
-                            seat_total_price = SeatManager.total_price;
-                            backSeatData = Object.assign(Object.assign({}, SeatManager), { seat_id: seat_id, seat_no_array: SeatManager.seat_no_array[i] });
-                        }
-                        else {
-                            seat_total_price = SeatManager.total_price;
-                            seatData = Object.assign(Object.assign({}, SeatManager), { seat_id: seat_id, seat_no_array: SeatManager.seat_no_array[i] });
-                        }
+                        seat_total_price = SeatManager.total_price;
+                        seatData = Object.assign(Object.assign({}, SeatManager), { seat_id: seat_id, seat_no_array: SeatManager.seat_no_array[i], ref_id: ref_id });
+                        // }
                     }
-                    backSeatList.push(backSeatData);
                     seat_list.push(seatData);
                     trip_total_price = trip_total_price + seat_total_price;
                 }
                 trip_total_price = trip_total_price + SeatManager.original_price;
                 var update;
-                var backseat_update;
                 // buy
                 if (SeatManager.seat_status == 4) {
                     update = {
@@ -120,13 +84,12 @@ let CategoryService = class CategoryService {
                     };
                 }
                 var filter = { trip_id: SeatManager.trip_id };
-                var [seat_create, seat_edit, trip_update] = yield Promise
+                var [seat_create, trip_update] = yield Promise
                     .all([
                     this.seatModel.services.bulkCreate(seat_list),
-                    this.seatModel.services.update(backSeatList, { where: filter }),
                     this.tripModel.services.update(update, { where: filter })
                 ]);
-                if (seat_create.length > 0 && seat_edit.length > 0 && trip_update.length > 0) {
+                if (seat_create.length > 0 && trip_update.length > 0) {
                     return { returncode: "200", message: "Success" };
                 }
                 else {
@@ -179,6 +142,7 @@ let CategoryService = class CategoryService {
                                     "remark": item.remark,
                                     "userid": item.userid,
                                     "seat_isdeleted": item.seat_isdeleted,
+                                    "ref_id": item.ref_id
                                 };
                                 templist.push(tempitem);
                             });
@@ -225,6 +189,7 @@ let CategoryService = class CategoryService {
                 var front_id;
                 var front_seat_update;
                 var front_seat_filter;
+                var ref_id = "ref_id_" + Math.floor(1000000000 + Math.random() * 9000000000) + Date.now();
                 for (var i = 0; i < SeatManager.seat_id.length; i++) {
                     if (SeatManager.seat_id[i]['seat_id'] == "") {
                         new_seat_no_list.push(SeatManager.seat_id[i]['seat_no']);
@@ -249,12 +214,11 @@ let CategoryService = class CategoryService {
                             pickup_place: SeatManager.pickup_place,
                             remark: SeatManager.remark,
                             userid: SeatManager.userid,
-                            seat_isdeleted: SeatManager.seat_isdeleted
+                            seat_isdeleted: SeatManager.seat_isdeleted,
+                            ref_id: ref_id
                         };
                     }
                 }
-                console.log(new_seat_no_list.length);
-                console.log(new_seat_no_list);
                 if (new_seat_no_list.length == 0) {
                     var result;
                     var seat_filter = { trip_id: SeatManager.trip_id, seat_id: { [Op.or]: seat_id_list }, seat_isdeleted: false };
@@ -270,7 +234,8 @@ let CategoryService = class CategoryService {
                         pickup_place: SeatManager.pickup_place,
                         remark: SeatManager.remark,
                         userid: SeatManager.userid,
-                        seat_isdeleted: SeatManager.seat_isdeleted
+                        seat_isdeleted: SeatManager.seat_isdeleted,
+                        ref_id: ref_id
                     };
                     var trip_total_price = seat_no_list.length * SeatManager.total_price;
                     var trip_update = {
@@ -278,11 +243,6 @@ let CategoryService = class CategoryService {
                         total_price: trip_total_price + SeatManager.original_price
                     };
                     var trip_filter = { trip_id: SeatManager.trip_id };
-                    console.log(trip_update);
-                    console.log(seat_update);
-                    console.log(trip_filter);
-                    console.log(">>>>>>>>>");
-                    console.log(seat_filter);
                     // 2-blocked and 3-booked
                     if (SeatManager.seat_status == 2 || SeatManager.seat_status == 3) {
                         var [seat_edit, seat_and_status_update] = yield Promise
@@ -375,7 +335,8 @@ let CategoryService = class CategoryService {
                         pickup_place: SeatManager.pickup_place,
                         remark: SeatManager.remark,
                         userid: SeatManager.userid,
-                        seat_isdeleted: SeatManager.seat_isdeleted
+                        seat_isdeleted: SeatManager.seat_isdeleted,
+                        ref_id: ref_id
                     };
                     var trip_total_price = seat_no_list.length * SeatManager.total_price;
                     var trip_update = {
@@ -383,11 +344,6 @@ let CategoryService = class CategoryService {
                         total_price: trip_total_price + SeatManager.original_price
                     };
                     var trip_filter = { trip_id: SeatManager.trip_id };
-                    console.log(trip_update);
-                    console.log(seat_update);
-                    console.log(trip_filter);
-                    console.log(">>>>>>>>>");
-                    console.log(seat_filter);
                     // 2-blocked and 3-booked
                     if (SeatManager.seat_status == 2 || SeatManager.seat_status == 3) {
                         var [seat_edit, seat_and_status_update] = yield Promise
@@ -396,11 +352,11 @@ let CategoryService = class CategoryService {
                             this.tripModel.services.update(trip_update, { where: trip_filter })
                         ]);
                         if (seat_edit.length > 0 && seat_and_status_update.length > 0) {
-                            result = { returncode: "200", message: 'Seat Updated successfully', data: {} };
+                            result = true;
                             console.log(result);
                         }
                         else {
-                            result = { returncode: "300", message: 'Error Upading Seat', data: {} };
+                            result = false;
                             console.log(result);
                         }
                     }
@@ -424,10 +380,10 @@ let CategoryService = class CategoryService {
                             console.log(seat_delete);
                             console.log(seat_and_status_update);
                             if (seat_delete > 0 && seat_and_status_update.length > 0) {
-                                result = { returncode: "200", message: 'Seat Updated successfully', data: {} };
+                                result = true;
                             }
                             else {
-                                result = { returncode: "300", message: 'Error Upading Seat', data: {} };
+                                result = false;
                             }
                         }
                     }
@@ -445,10 +401,10 @@ let CategoryService = class CategoryService {
                                 this.seatModel.services.update(front_seat_update, { where: front_seat_filter }),
                             ]);
                             if (seat_edit.length > 0 && seat_and_status_update.length > 0) {
-                                result = { returncode: "200", message: 'Seat Updated successfully', data: {} };
+                                result = true;
                             }
                             else {
-                                result = { returncode: "300", message: 'Error Upading Seat', data: {} };
+                                result = false;
                             }
                         }
                         else {
@@ -458,10 +414,10 @@ let CategoryService = class CategoryService {
                                 this.tripModel.services.update(trip_update, { where: trip_filter })
                             ]);
                             if (seat_edit.length > 0 && seat_and_status_update.length > 0) {
-                                result = { returncode: "200", message: 'Seat Updated successfully', data: {} };
+                                result = true;
                             }
                             else {
-                                result = { returncode: "300", message: 'Error Upading Seat', data: {} };
+                                result = false;
                             }
                         }
                     }
@@ -473,38 +429,25 @@ let CategoryService = class CategoryService {
                         for (let i = 0; i < new_seat_no_list.length; i++) {
                             const seat_id = "seat_id_" + (0, uuid_1.v4)();
                             var seatData;
-                            var backSeatData;
                             if (new_seat_no_list[i] == 1) {
                                 seat_total_price = SeatManager.total_price + 3000;
-                                seatData = Object.assign(Object.assign({}, SeatManager), { seat_id: seat_id, seat_no_array: new_seat_no_list[i], total_price: seat_total_price });
+                                seatData = Object.assign(Object.assign({}, SeatManager), { seat_id: seat_id, seat_no_array: new_seat_no_list[i], total_price: seat_total_price, ref_id: ref_id });
                             }
                             else {
-                                if (SeatManager.car_type == '1' &&
-                                    (new_seat_no_list[i] == 5 ||
-                                        new_seat_no_list[i] == 6 ||
-                                        new_seat_no_list[i] == 7)) {
-                                    seat_total_price = SeatManager.total_price;
-                                    backSeatData = Object.assign(Object.assign({}, SeatManager), { seat_id: seat_id, seat_no_array: new_seat_no_list[i] });
-                                }
-                                else {
-                                    seat_total_price = SeatManager.total_price;
-                                    seatData = Object.assign(Object.assign({}, SeatManager), { seat_id: seat_id, seat_no_array: new_seat_no_list[i] });
-                                }
+                                seat_total_price = SeatManager.total_price;
+                                seatData = Object.assign(Object.assign({}, SeatManager), { seat_id: seat_id, seat_no_array: new_seat_no_list[i], ref_id: ref_id });
                             }
-                            backSeatList.push(backSeatData);
                             seat_list.push(seatData);
                             trip_total_price = trip_total_price + seat_total_price;
                         }
                         trip_total_price = trip_total_price + SeatManager.original_price;
                         var update;
-                        var backseat_update;
                         // buy
                         if (SeatManager.seat_status == 4) {
                             update = {
                                 seat_and_status: JSON.stringify(SeatManager.seat_and_status),
                                 total_price: trip_total_price
                             };
-                            backseat_update = {};
                         }
                         else {
                             update = {
@@ -512,13 +455,13 @@ let CategoryService = class CategoryService {
                             };
                         }
                         var filter = { trip_id: SeatManager.trip_id };
-                        var [seat_create, seat_edit, my_trip_update] = yield Promise
+                        var [seat_create, my_trip_update] = yield Promise
                             .all([
                             this.seatModel.services.bulkCreate(seat_list),
-                            this.seatModel.services.update(backSeatList, { where: filter }),
+                            // this.seatModel.services.update(backSeatList, { where: filter }),
                             this.tripModel.services.update(update, { where: filter })
                         ]);
-                        if (seat_create.length > 0 && seat_edit.length > 0 && my_trip_update.length > 0) {
+                        if (result == true && seat_create.length > 0 && my_trip_update.length > 0) {
                             return { returncode: "200", message: "Success", data: {} };
                         }
                         else {
