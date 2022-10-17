@@ -346,6 +346,9 @@ export default class UserService {
                 const returncode = "200";
                 const message = "User List"
 
+                console.log(data);
+                
+
                 var templist: any[] = [];
                 data.map((item: any) => {
                   if (item.userid != req.body.userid) {
@@ -353,8 +356,8 @@ export default class UserService {
                       userid: item.userid,
                       usertype: item.usertype,
                       username: item.username,
-                      gateid : item.gateid,
-                      servicefee : item.servicefee,
+                      gateid : item.gate_id,
+                      servicefee : item.service_fee_id,
                       remark: item.remark
                     };
 

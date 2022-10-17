@@ -106,7 +106,7 @@ export default (app: Router) => {
 
     try {
       const SeatServiceInstance = Container.get(SeatService);
-      const { returncode, message, data } = await SeatServiceInstance.editSeat(req.body as SeatManager);
+      const { returncode, message, data } = await SeatServiceInstance.EditSeat(req.body as SeatManager);
       return res.status(200).json({ returncode, message, data });
 
     } catch (e) {

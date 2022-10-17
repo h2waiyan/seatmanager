@@ -83,7 +83,7 @@ exports.default = (app) => {
     route.post('/edit', middlewares_1.default.validation(EditSeatsSchema), middlewares_1.default.isAuth, middlewares_1.default.tokenCheck, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
         try {
             const SeatServiceInstance = typedi_1.Container.get(seat_1.default);
-            const { returncode, message, data } = yield SeatServiceInstance.editSeat(req.body);
+            const { returncode, message, data } = yield SeatServiceInstance.EditSeat(req.body);
             return res.status(200).json({ returncode, message, data });
         }
         catch (e) {

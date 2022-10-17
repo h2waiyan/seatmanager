@@ -54,6 +54,9 @@ const seatModel = (sequelize, Sequelize) => {
             type: Sequelize.BOOLEAN,
             defaultValue: false,
         },
+        ref_id: {
+            type: Sequelize.STRING,
+        },
         t1: {
             type: Sequelize.STRING,
         },

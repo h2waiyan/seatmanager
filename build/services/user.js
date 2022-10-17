@@ -330,6 +330,7 @@ let UserService = class UserService {
                                 if (data) {
                                     const returncode = "200";
                                     const message = "User List";
+                                    console.log(data);
                                     var templist = [];
                                     data.map((item) => {
                                         if (item.userid != req.body.userid) {
@@ -337,6 +338,8 @@ let UserService = class UserService {
                                                 userid: item.userid,
                                                 usertype: item.usertype,
                                                 username: item.username,
+                                                gateid: item.gate_id,
+                                                servicefee: item.service_fee_id,
                                                 remark: item.remark
                                             };
                                             templist.push(tempitem);
