@@ -39,11 +39,12 @@ export default class CategoryService {
       var trip_total_price = 0;
       var seat_total_price = 0;
 
+      var ref_id = "ref_id_" + Math.floor(1000000000 + Math.random() * 9000000000) + Date.now();
+
       for (let i = 0; i < SeatManager.seat_no_array.length; i++) {
 
         const seat_id = "seat_id_" + uuidv4();
 
-        var ref_id = "ref_id_" + Math.floor(1000000000 + Math.random() * 9000000000) + Date.now();
 
         var seatData;
         var backSeatData;
@@ -57,7 +58,7 @@ export default class CategoryService {
             seat_id: seat_id,
             seat_no_array: SeatManager.seat_no_array[i],
             total_price: seat_total_price,
-            ref_id : ref_id
+            ref_id: ref_id
           }
 
         }
@@ -176,7 +177,7 @@ export default class CategoryService {
                 "remark": item.remark,
                 "userid": item.userid,
                 "seat_isdeleted": item.seat_isdeleted,
-                "ref_id" : item.ref_id
+                "ref_id": item.ref_id
               };
 
               templist.push(tempitem);
@@ -240,7 +241,6 @@ export default class CategoryService {
       var ref_id = "ref_id_" + Math.floor(1000000000 + Math.random() * 9000000000) + Date.now();
 
       for (var i = 0; i < SeatManager.seat_id.length; i++) {
-
 
         if (SeatManager.seat_id[i]['seat_id'] == "") {
           new_seat_no_list.push(SeatManager.seat_id[i]['seat_no'])
@@ -464,20 +464,41 @@ export default class CategoryService {
         // 1-open
         else if (SeatManager.seat_status == 1) {
 
+          console.log("LLLLLLLLHRERE:::::::::");
+
+          console.log(">>>>" +SeatManager.car_type + "<<<<<");
+
+          console.log(seat_no_list.includes("5") || seat_no_list.includes("6") || seat_no_list.includes("7"));
+          
           // for back of the back which is called nout-phone
-          if (SeatManager.car_type == "1" && (seat_no_list.includes(5) || seat_no_list.includes(6) || seat_no_list.includes(7))) {
-            console.log("နောက်ဖုံးကိစ္စများ−−−−−−")
-          }
-          // book, blocked, sold ကို open ပြန်ပြောင်းတာ
-          else {
+          if (SeatManager.car_type == "1" && (seat_no_list.includes("5") || seat_no_list.includes("6") || seat_no_list.includes("7"))) {
+            console.log("နောက်ဖုံးကိစ္စများ−−−−−−");
             var new_trip_update = {
               seat_and_status: JSON.stringify(SeatManager.seat_and_status),
             }
 
-            console.log(
-              ">>>>>>> HERE >>>>>"
-            );
+            var [seat_and_status_update] = await Promise
+              .all(
+                [
+                  this.tripModel.services.update(new_trip_update, { where: trip_filter })
+                ]
+              )
 
+            if (seat_and_status_update.length > 0) {
+              result = true;
+            } else {
+              result = false;
+            }
+          }
+          // book, blocked, sold ကို open ပြန်ပြောင်းတာ
+          else {
+
+            console.log("<<<<<<<<<");
+            
+
+            var new_trip_update = {
+              seat_and_status: JSON.stringify(SeatManager.seat_and_status),
+            }
 
             var [seat_delete, seat_and_status_update] = await Promise
               .all(
@@ -488,7 +509,8 @@ export default class CategoryService {
               )
 
             console.log(seat_delete);
-            console.log(seat_and_status_update);
+            console.log(seat_and_status_update.length)
+            
 
             if (seat_delete > 0 && seat_and_status_update.length > 0) {
               result = true;

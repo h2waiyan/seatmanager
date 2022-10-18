@@ -17,6 +17,8 @@ var SeatCreateSchema = Joi.object().keys({
   sub_route_id: Joi.string().allow(""),
   seat_status: Joi.number().required(),
 
+  car_type : Joi.string().allow(""),
+
   original_price : Joi.number().required(),
   seat_and_status: Joi.any().required(),
 
@@ -45,6 +47,8 @@ var EditSeatsSchema = Joi.object().keys({
   trip_id: Joi.string().required(),
   sub_route_id: Joi.string().allow(""),
   seat_status: Joi.number().required(),
+
+  car_type : Joi.string().allow(""),
 
   original_price : Joi.number().required(),
   seat_and_status: Joi.any().required(),
