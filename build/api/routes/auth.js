@@ -23,7 +23,7 @@ var CreateUserSchema = celebrate_1.Joi.object().keys({
     usertype: celebrate_1.Joi.number().required(),
     username: celebrate_1.Joi.string().required(),
     password: celebrate_1.Joi.string().required(),
-    gate_id: celebrate_1.Joi.number().allow(""),
+    gate_id: celebrate_1.Joi.string().allow(""),
     service_fee_id: celebrate_1.Joi.number().allow(""),
     remark: celebrate_1.Joi.string().allow(""),
     createuserid: celebrate_1.Joi.string().required(),

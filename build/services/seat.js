@@ -52,9 +52,9 @@ let CategoryService = class CategoryService {
                 var backSeatList = [];
                 var trip_total_price = 0;
                 var seat_total_price = 0;
+                var ref_id = "ref_id_" + Math.floor(1000000000 + Math.random() * 9000000000) + Date.now();
                 for (let i = 0; i < SeatManager.seat_no_array.length; i++) {
                     const seat_id = "seat_id_" + (0, uuid_1.v4)();
-                    var ref_id = "ref_id_" + Math.floor(1000000000 + Math.random() * 9000000000) + Date.now();
                     var seatData;
                     var backSeatData;
                     if (SeatManager.seat_no_array[i] == 1) {
@@ -362,23 +362,39 @@ let CategoryService = class CategoryService {
                     }
                     // 1-open
                     else if (SeatManager.seat_status == 1) {
+                        console.log("LLLLLLLLHRERE:::::::::");
+                        console.log(">>>>" + SeatManager.car_type + "<<<<<");
+                        console.log(seat_no_list.includes("5") || seat_no_list.includes("6") || seat_no_list.includes("7"));
                         // for back of the back which is called nout-phone
-                        if (SeatManager.car_type == "1" && (seat_no_list.includes(5) || seat_no_list.includes(6) || seat_no_list.includes(7))) {
+                        if (SeatManager.car_type == "1" && (seat_no_list.includes("5") || seat_no_list.includes("6") || seat_no_list.includes("7"))) {
                             console.log("နောက်ဖုံးကိစ္စများ−−−−−−");
-                        }
-                        // book, blocked, sold ကို open ပြန်ပြောင်းတာ
-                        else {
                             var new_trip_update = {
                                 seat_and_status: JSON.stringify(SeatManager.seat_and_status),
                             };
-                            console.log(">>>>>>> HERE >>>>>");
+                            var [seat_and_status_update] = yield Promise
+                                .all([
+                                this.tripModel.services.update(new_trip_update, { where: trip_filter })
+                            ]);
+                            if (seat_and_status_update.length > 0) {
+                                result = true;
+                            }
+                            else {
+                                result = false;
+                            }
+                        }
+                        // book, blocked, sold ကို open ပြန်ပြောင်းတာ
+                        else {
+                            console.log("<<<<<<<<<");
+                            var new_trip_update = {
+                                seat_and_status: JSON.stringify(SeatManager.seat_and_status),
+                            };
                             var [seat_delete, seat_and_status_update] = yield Promise
                                 .all([
                                 this.seatModel.services.destroy({ where: seat_filter }),
                                 this.tripModel.services.update(new_trip_update, { where: trip_filter })
                             ]);
                             console.log(seat_delete);
-                            console.log(seat_and_status_update);
+                            console.log(seat_and_status_update.length);
                             if (seat_delete > 0 && seat_and_status_update.length > 0) {
                                 result = true;
                             }

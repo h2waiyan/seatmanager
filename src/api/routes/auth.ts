@@ -13,7 +13,7 @@ var CreateUserSchema = Joi.object().keys({
   usertype: Joi.number().required(),
   username: Joi.string().required(),
   password: Joi.string().required(),
-  gate_id : Joi.number().allow(""),
+  gate_id : Joi.string().allow(""),
   service_fee_id : Joi.number().allow(""),
   remark : Joi.string().allow(""),
   createuserid: Joi.string().required(),
