@@ -21,16 +21,16 @@ export default class CategoryService {
 
   public async CreateSeat(SeatManager: SeatManager): Promise<{ returncode: string, message: string }> {
 
-    var AuthrizationCheckService = Container.get(AuthroizationCheck);
-    var userRecord = await AuthrizationCheckService.rootAdminCheck(SeatManager.userid);
+    // var AuthrizationCheckService = Container.get(AuthroizationCheck);
+    // var userRecord = await AuthrizationCheckService.rootAdminCheck(SeatManager.userid);
 
-    if (userRecord == "admin-not-found") {
-      return { returncode: "300", message: "Admin Not Found" }
-    }
+    // if (userRecord == "admin-not-found") {
+    //   return { returncode: "300", message: "Admin Not Found" }
+    // }
 
-    if (userRecord == "user-has-no-authorization") {
-      return { returncode: "300", message: "User Had no authorization to create Category." }
-    }
+    // if (userRecord == "user-has-no-authorization") {
+    //   return { returncode: "300", message: "User Had no authorization to create Category." }
+    // }
 
     try {
 
@@ -215,16 +215,16 @@ export default class CategoryService {
   public async EditSeat(SeatManager
     : SeatManager): Promise<{ returncode: string, message: string, data: any }> {
 
-    var AuthrizationCheckService = Container.get(AuthroizationCheck);
-    var userRecord = await AuthrizationCheckService.rootAdminCheck(SeatManager.userid);
+    // var AuthrizationCheckService = Container.get(AuthroizationCheck);
+    // var userRecord = await AuthrizationCheckService.rootAdminCheck(SeatManager.userid);
 
-    if (userRecord == "admin-not-found") {
-      return { returncode: "300", message: "User Not Found", data: {} }
-    }
+    // if (userRecord == "admin-not-found") {
+    //   return { returncode: "300", message: "User Not Found", data: {} }
+    // }
 
-    if (userRecord == "user-has-no-authorization") {
-      return { returncode: "300", message: "User Had no authorization to edit seat.", data: {} }
-    }
+    // if (userRecord == "user-has-no-authorization") {
+    //   return { returncode: "300", message: "User Had no authorization to edit seat.", data: {} }
+    // }
 
     try {
 
