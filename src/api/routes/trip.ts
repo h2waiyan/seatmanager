@@ -31,21 +31,23 @@ var GetTripSchema = Joi.object().keys({
 })
 
 
-var EditOneTripSchema = Joi.object().keys({
+var DeleteOneTripSchema = Joi.object().keys({
     userid: Joi.string().required(),
     trip_id: Joi.string().required(),
 
-    gate_id: Joi.string().required(),
-    date: Joi.string().required(),
-    route_id: Joi.string().required(),
-    car_type_id: Joi.string().required(),
-    seat_and_status: Joi.string().allow(""),
+    // gate_id: Joi.string().required(),
+    // date: Joi.string().required(),
+    // route_id: Joi.string().required(),
+    // car_type_id: Joi.string().required(),
+    // seat_and_status: Joi.string().allow(""),
 
-    car_id: Joi.string().allow(""),
-    total_price : Joi.number().allow(""),
-    remark: Joi.string().allow(""),
-    trip_isdeleted: Joi.boolean(),
+    // car_id: Joi.string().allow(""),
+    // total_price : Joi.number().allow(""),
+    // remark: Joi.string().allow(""),
+    // trip_isdeleted: Joi.boolean(),
 });
+
+
 
 export default (app: Router) => {
     app.use('/trips', route);
@@ -86,7 +88,7 @@ export default (app: Router) => {
     );
 
     route.post('/single_delete',
-    middlewares.validation(EditOneTripSchema),
+    middlewares.validation(DeleteOneTripSchema),
     middlewares.isAuth,
     middlewares.tokenCheck,
     async (req: Request, res: Response, next: NextFunction) => {
