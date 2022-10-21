@@ -85,7 +85,7 @@ export default (app: Router) => {
         },
     );
 
-    route.post('/single_edit',
+    route.post('/single_delete',
     middlewares.validation(EditOneTripSchema),
     middlewares.isAuth,
     middlewares.tokenCheck,
@@ -93,7 +93,7 @@ export default (app: Router) => {
 
         try {
             const authServiceInstance = Container.get(TripService);
-            const { returncode, message, data } = await authServiceInstance.editTrip(req.body as TripInterface);
+            const { returncode, message, data } = await authServiceInstance.DeleteTrip(req.body as TripInterface);
             return res.status(200).json({ returncode, message, data });
 
         } catch (e) {

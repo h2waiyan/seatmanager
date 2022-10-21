@@ -118,13 +118,13 @@ export default class TripService {
             console.log(data[0]);
 
             var templist: any[] = [];
-            var vanlist : any[] = [];
-            var noah7list : any[] = [];
+            var vanlist: any[] = [];
+            var noah7list: any[] = [];
 
             data.map((item: any) => {
-              
+
               var seat_and_status_to_show = JSON.parse(item.seat_and_status);
-              
+
 
               var tempitem = {
                 trip_id: item.trip_id,
@@ -180,7 +180,7 @@ export default class TripService {
     }
   }
 
-  public async editTrip(TripInterface
+  public async DeleteTrip(TripInterface
     : TripInterface): Promise<{ returncode: string, message: string, data: any }> {
 
     var AuthrizationCheckService = Container.get(AuthroizationCheck);
@@ -209,18 +209,27 @@ export default class TripService {
         trip_isdeleted: TripInterface.trip_isdeleted
       }
 
-      await this.tripModel.services
-        .update(update, {
-          where: filter,
-        }).then((data: any) => {
-          if (data) {
-            if (data == 1) {
-              result = { returncode: "200", message: 'Single Trip Updated successfully', data: {} };
-            } else {
-              result = { returncode: "300", message: 'Error upading or deleting single trip', data: {} };
-            }
+      await this.tripModel.services.destroy({ where: filter }).then((data: any) => {
+        if (data) {
+          if (data == 1) {
+            result = { returncode: "200", message: 'Single Trip Deleted successfully', data: {} };
+          } else {
+            result = { returncode: "300", message: 'Error upading or deleting single trip', data: {} };
           }
-        });
+        }
+
+        // await this.tripModel.services
+        //   .update(update, {
+        //     where: filter,
+        //   }).then((data: any) => {
+        //     if (data) {
+        //       if (data == 1) {
+        //         result = { returncode: "200", message: 'Single Trip Updated successfully', data: {} };
+        //       } else {
+        //         result = { returncode: "300", message: 'Error upading or deleting single trip', data: {} };
+        //       }
+        //     }
+      });
       return result;
     } catch (e) {
       console.log(e);
