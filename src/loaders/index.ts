@@ -19,6 +19,11 @@ export default async ({ expressApp }: { expressApp: any }) => {
     model: require('../models/seat'),
   };
 
+    const seatHistoryModel = {
+    name: 'seatHistoryModel',
+    model: require('../models/seat_history'),
+  };
+
   const cartypeModel = {
     name: 'cartypeModel',
     model: require('../models/car_type'),
@@ -31,6 +36,12 @@ export default async ({ expressApp }: { expressApp: any }) => {
     userModel.model.services.findAll({}).then((data: any) => {
 
       const systemadmindata = [
+        {
+          userid: "09265005353",
+          username: 'admin',
+          usertype: "1",
+          password: hashedPassword
+        },
         {
           userid: "09761315566",
           username: 'admin',
@@ -46,7 +57,7 @@ export default async ({ expressApp }: { expressApp: any }) => {
       ]
       
       if (data.length == 0) {
-        userModel.model.services.create(systemadmindata);
+        userModel.model.services.bulkCreate(systemadmindata);
       }
     });
   })
@@ -86,6 +97,7 @@ export default async ({ expressApp }: { expressApp: any }) => {
       userModel,
       tripModel,
       seatModel,
+      seatHistoryModel,
       cartypeModel
     ],
   });

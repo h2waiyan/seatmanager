@@ -21,9 +21,15 @@ export interface SeatManager {
     remark : string;
     
     seat_isdeleted: string;
+    date_time : string;
 }
 
 export interface GetSeat {
+    userid: string;
+    trip_id : string;
+}
+
+export interface GetSeatHistory {
     userid: string;
     trip_id : string;
 }

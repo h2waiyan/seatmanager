@@ -18,7 +18,7 @@ var TripCreateScehma = Joi.object().keys({
     seat_and_status: Joi.string().allow(""),
 
     car_id: Joi.string().allow(""),
-    total_price : Joi.number().allow(""),
+    total_price: Joi.number().allow(""),
     remark: Joi.string().allow(""),
     trip_isdeleted: Joi.boolean(),
 });
@@ -34,17 +34,22 @@ var GetTripSchema = Joi.object().keys({
 var DeleteOneTripSchema = Joi.object().keys({
     userid: Joi.string().required(),
     trip_id: Joi.string().required(),
+});
 
-    // gate_id: Joi.string().required(),
-    // date: Joi.string().required(),
-    // route_id: Joi.string().required(),
-    // car_type_id: Joi.string().required(),
-    // seat_and_status: Joi.string().allow(""),
+var EditOneTripSchema = Joi.object().keys({
+    userid: Joi.string().required(),
+    trip_id: Joi.string().required(),
 
-    // car_id: Joi.string().allow(""),
-    // total_price : Joi.number().allow(""),
-    // remark: Joi.string().allow(""),
-    // trip_isdeleted: Joi.boolean(),
+    gate_id: Joi.string().required(),
+    date: Joi.string().required(),
+    route_id: Joi.string().required(),
+    car_type_id: Joi.string().required(),
+    seat_and_status: Joi.string().allow(""),
+
+    car_id: Joi.string().allow(""),
+    total_price: Joi.number().allow(""),
+    remark: Joi.string().allow(""),
+    trip_isdeleted: Joi.boolean(),
 });
 
 
@@ -88,20 +93,38 @@ export default (app: Router) => {
     );
 
     route.post('/single_delete',
-    middlewares.validation(DeleteOneTripSchema),
-    middlewares.isAuth,
-    middlewares.tokenCheck,
-    async (req: Request, res: Response, next: NextFunction) => {
+        middlewares.validation(DeleteOneTripSchema),
+        middlewares.isAuth,
+        middlewares.tokenCheck,
+        async (req: Request, res: Response, next: NextFunction) => {
 
-        try {
-            const authServiceInstance = Container.get(TripService);
-            const { returncode, message, data } = await authServiceInstance.DeleteTrip(req.body as TripInterface);
-            return res.status(200).json({ returncode, message, data });
+            try {
+                const authServiceInstance = Container.get(TripService);
+                const { returncode, message, data } = await authServiceInstance.DeleteTrip(req.body as TripInterface);
+                return res.status(200).json({ returncode, message, data });
 
-        } catch (e) {
-            return next(e);
-        }
-    },
-);
+            } catch (e) {
+                return next(e);
+            }
+        },
+    );
+
+    route.post('/single_edit',
+        middlewares.validation(EditOneTripSchema),
+        middlewares.isAuth,
+        middlewares.tokenCheck,
+        async (req: Request, res: Response, next: NextFunction) => {
+
+            try {
+                const authServiceInstance = Container.get(TripService);
+                const { returncode, message, data } = await authServiceInstance.editTrip(req.body as TripInterface);
+                return res.status(200).json({ returncode, message, data });
+
+            } catch (e) {
+                return next(e);
+            }
+        },
+    );
+
 
 }

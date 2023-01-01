@@ -237,4 +237,51 @@ export default class TripService {
     }
   }
 
+  public async editTrip(TripInterface
+    : TripInterface): Promise<{ returncode: string, message: string, data: any }> {
+
+    var AuthrizationCheckService = Container.get(AuthroizationCheck);
+    var userRecord = await AuthrizationCheckService.rootAdminCheck(TripInterface.userid);
+
+    if (userRecord == "admin-not-found") {
+      return { returncode: "300", message: "User Not Found", data: {} }
+    }
+
+    if (userRecord == "user-has-no-authorization") {
+      return { returncode: "300", message: "User Had no authorization to create Category.", data: {} }
+    }
+
+    const Op = Sequelize.Op;
+    try {
+
+      if (TripInterface.trip_id == "" || TripInterface.trip_id == null) {
+        result = { returncode: "300", message: 'Trip ID cannot be blank', data: {} };
+        return result;
+      }
+
+      var result: any;
+      var filter = { trip_id: TripInterface.trip_id, trip_isdeleted: false };
+      var update = {
+        ...TripInterface,
+        trip_isdeleted: TripInterface.trip_isdeleted
+      }
+
+      await this.tripModel.services
+        .update(update, {
+          where: filter,
+        }).then((data: any) => {
+          if (data) {
+            if (data == 1) {
+              result = { returncode: "200", message: 'Single Trip Updated successfully', data: {} };
+            } else {
+              result = { returncode: "300", message: 'Error upading or deleting single trip', data: {} };
+            }
+          }
+        });
+      return result;
+    } catch (e) {
+      console.log(e);
+      throw e;
+    }
+  }
 }

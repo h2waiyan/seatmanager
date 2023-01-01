@@ -1,14 +1,12 @@
 import { Service, Inject } from 'typedi';
-// import { Sequelize } from "sequelize";
 import AuthroizationCheck from './authorization_check';
 import { Container } from 'typedi';
 import { GetSeat, SeatManager } from '../interfaces/seat';
 import { v4 as uuidv4 } from 'uuid';
-// const { Op } = require("sequelize");
 import Sequelize, { and, Model, where } from "sequelize";
 import { json } from 'body-parser';
-const Op = require('Sequelize').Op
-// import sequelize from '../sequelize';
+const Op = Sequelize.Op;
+
 
 @Service()
 export default class CategoryService {
@@ -16,21 +14,11 @@ export default class CategoryService {
     @Inject('seatModel') private seatModel: any,
     @Inject('tripModel') private tripModel: any,
     @Inject('userModel') private userModel: any,
+    @Inject('seatHistoryModel') private seatHistoryModel: any,
   ) {
   }
 
   public async CreateSeat(SeatManager: SeatManager): Promise<{ returncode: string, message: string }> {
-
-    // var AuthrizationCheckService = Container.get(AuthroizationCheck);
-    // var userRecord = await AuthrizationCheckService.rootAdminCheck(SeatManager.userid);
-
-    // if (userRecord == "admin-not-found") {
-    //   return { returncode: "300", message: "Admin Not Found" }
-    // }
-
-    // if (userRecord == "user-has-no-authorization") {
-    //   return { returncode: "300", message: "User Had no authorization to create Category." }
-    // }
 
     try {
 
@@ -40,6 +28,21 @@ export default class CategoryService {
       var seat_total_price = 0;
 
       var ref_id = "ref_id_" + Math.floor(1000000000 + Math.random() * 9000000000) + Date.now();
+
+      const seat_history_id = "seat_history_id_" + uuidv4();
+
+            var seatHistoryData;
+
+            seatHistoryData = {
+
+                seat_history_id: seat_history_id,
+                trip_id: SeatManager.trip_id,
+                userid: SeatManager.userid,
+                seat_no_array: JSON.stringify(SeatManager.seat_no_array),
+                seat_status: SeatManager.seat_status,
+                date_time: SeatManager.date_time,
+                seat_id: SeatManager.trip_id + JSON.stringify(SeatManager.seat_no_array),
+      }
 
       for (let i = 0; i < SeatManager.seat_no_array.length; i++) {
 
@@ -103,16 +106,16 @@ export default class CategoryService {
 
       var filter = { trip_id: SeatManager.trip_id };
 
-      var [seat_create, trip_update] = await Promise
+      var [seat_create, trip_update, seat_history_create ] = await Promise
         .all(
           [
             this.seatModel.services.bulkCreate(seat_list),
-            this.tripModel.services.update(update, { where: filter })
+            this.tripModel.services.update(update, { where: filter }),
+            this.seatHistoryModel.services.create(seatHistoryData)
           ]
-        )
+        )      
 
-
-      if (seat_create.length > 0 && trip_update.length > 0) {
+      if (seat_create.length > 0 && trip_update.length > 0  && seat_history_create) {
         return { returncode: "200", message: "Success" };
       } else {
         return { returncode: "300", message: "Fail" };
@@ -463,10 +466,6 @@ export default class CategoryService {
 
         // 1-open
         else if (SeatManager.seat_status == 1) {
-
-          console.log("LLLLLLLLHRERE:::::::::");
-
-          console.log(">>>>" +SeatManager.car_type + "<<<<<");
 
           console.log(seat_no_list.includes("5") || seat_no_list.includes("6") || seat_no_list.includes("7"));
           

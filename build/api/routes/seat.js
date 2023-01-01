@@ -15,6 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
 const typedi_1 = require("typedi");
 const seat_1 = __importDefault(require("../../services/seat"));
+const seat_history_1 = __importDefault(require("../../services/seat_history"));
 const middlewares_1 = __importDefault(require("../middlewares"));
 const celebrate_1 = require("celebrate");
 const route = (0, express_1.Router)();
@@ -36,10 +37,15 @@ var SeatCreateSchema = celebrate_1.Joi.object().keys({
     pickup_place: celebrate_1.Joi.string().allow(""),
     remark: celebrate_1.Joi.string().allow(""),
     seat_isdeleted: celebrate_1.Joi.boolean(),
+    date_time: celebrate_1.Joi.string().required(),
 });
 var GetSeatsSchema = celebrate_1.Joi.object().keys({
     userid: celebrate_1.Joi.string().required(),
-    trip_id: celebrate_1.Joi.string().allow(""),
+    trip_id: celebrate_1.Joi.string().required(),
+});
+var GetSeatsHistorySchema = celebrate_1.Joi.object().keys({
+    userid: celebrate_1.Joi.string().required(),
+    trip_id: celebrate_1.Joi.string().required(),
 });
 var EditSeatsSchema = celebrate_1.Joi.object().keys({
     userid: celebrate_1.Joi.string().required(),
@@ -67,6 +73,16 @@ exports.default = (app) => {
             const authServiceInstance = typedi_1.Container.get(seat_1.default);
             const { returncode, message } = yield authServiceInstance.CreateSeat(req.body);
             return res.status(200).json({ returncode, message });
+        }
+        catch (e) {
+            return next(e);
+        }
+    }));
+    route.post('/get_history', middlewares_1.default.validation(GetSeatsHistorySchema), middlewares_1.default.isAuth, middlewares_1.default.tokenCheck, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+        try {
+            const SeatHistoryServiceInstance = typedi_1.Container.get(seat_history_1.default);
+            const { returncode, message, data } = yield SeatHistoryServiceInstance.GetSeatHistory(req.body);
+            return res.status(200).json({ returncode, message, data });
         }
         catch (e) {
             return next(e);

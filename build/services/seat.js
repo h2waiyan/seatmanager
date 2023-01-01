@@ -25,34 +25,35 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const typedi_1 = require("typedi");
-// import { Sequelize } from "sequelize";
-const authorization_check_1 = __importDefault(require("./authorization_check"));
-const typedi_2 = require("typedi");
 const uuid_1 = require("uuid");
-const Op = require('Sequelize').Op;
-// import sequelize from '../sequelize';
+const sequelize_1 = __importDefault(require("sequelize"));
+const Op = sequelize_1.default.Op;
 let CategoryService = class CategoryService {
-    constructor(seatModel, tripModel, userModel) {
+    constructor(seatModel, tripModel, userModel, seatHistoryModel) {
         this.seatModel = seatModel;
         this.tripModel = tripModel;
         this.userModel = userModel;
+        this.seatHistoryModel = seatHistoryModel;
     }
     CreateSeat(SeatManager) {
         return __awaiter(this, void 0, void 0, function* () {
-            var AuthrizationCheckService = typedi_2.Container.get(authorization_check_1.default);
-            var userRecord = yield AuthrizationCheckService.rootAdminCheck(SeatManager.userid);
-            if (userRecord == "admin-not-found") {
-                return { returncode: "300", message: "Admin Not Found" };
-            }
-            if (userRecord == "user-has-no-authorization") {
-                return { returncode: "300", message: "User Had no authorization to create Category." };
-            }
             try {
                 var seat_list = [];
                 var backSeatList = [];
                 var trip_total_price = 0;
                 var seat_total_price = 0;
                 var ref_id = "ref_id_" + Math.floor(1000000000 + Math.random() * 9000000000) + Date.now();
+                const seat_history_id = "seat_history_id_" + (0, uuid_1.v4)();
+                var seatHistoryData;
+                seatHistoryData = {
+                    seat_history_id: seat_history_id,
+                    trip_id: SeatManager.trip_id,
+                    userid: SeatManager.userid,
+                    seat_no_array: JSON.stringify(SeatManager.seat_no_array),
+                    seat_status: SeatManager.seat_status,
+                    date_time: SeatManager.date_time,
+                    seat_id: SeatManager.trip_id + JSON.stringify(SeatManager.seat_no_array),
+                };
                 for (let i = 0; i < SeatManager.seat_no_array.length; i++) {
                     const seat_id = "seat_id_" + (0, uuid_1.v4)();
                     var seatData;
@@ -84,12 +85,13 @@ let CategoryService = class CategoryService {
                     };
                 }
                 var filter = { trip_id: SeatManager.trip_id };
-                var [seat_create, trip_update] = yield Promise
+                var [seat_create, trip_update, seat_history_create] = yield Promise
                     .all([
                     this.seatModel.services.bulkCreate(seat_list),
-                    this.tripModel.services.update(update, { where: filter })
+                    this.tripModel.services.update(update, { where: filter }),
+                    this.seatHistoryModel.services.create(seatHistoryData)
                 ]);
-                if (seat_create.length > 0 && trip_update.length > 0) {
+                if (seat_create.length > 0 && trip_update.length > 0 && seat_history_create) {
                     return { returncode: "200", message: "Success" };
                 }
                 else {
@@ -173,14 +175,14 @@ let CategoryService = class CategoryService {
     }
     EditSeat(SeatManager) {
         return __awaiter(this, void 0, void 0, function* () {
-            var AuthrizationCheckService = typedi_2.Container.get(authorization_check_1.default);
-            var userRecord = yield AuthrizationCheckService.rootAdminCheck(SeatManager.userid);
-            if (userRecord == "admin-not-found") {
-                return { returncode: "300", message: "User Not Found", data: {} };
-            }
-            if (userRecord == "user-has-no-authorization") {
-                return { returncode: "300", message: "User Had no authorization to edit seat.", data: {} };
-            }
+            // var AuthrizationCheckService = Container.get(AuthroizationCheck);
+            // var userRecord = await AuthrizationCheckService.rootAdminCheck(SeatManager.userid);
+            // if (userRecord == "admin-not-found") {
+            //   return { returncode: "300", message: "User Not Found", data: {} }
+            // }
+            // if (userRecord == "user-has-no-authorization") {
+            //   return { returncode: "300", message: "User Had no authorization to edit seat.", data: {} }
+            // }
             try {
                 var seat_id_list = [];
                 var seat_no_list = [];
@@ -362,8 +364,6 @@ let CategoryService = class CategoryService {
                     }
                     // 1-open
                     else if (SeatManager.seat_status == 1) {
-                        console.log("LLLLLLLLHRERE:::::::::");
-                        console.log(">>>>" + SeatManager.car_type + "<<<<<");
                         console.log(seat_no_list.includes("5") || seat_no_list.includes("6") || seat_no_list.includes("7"));
                         // for back of the back which is called nout-phone
                         if (SeatManager.car_type == "1" && (seat_no_list.includes("5") || seat_no_list.includes("6") || seat_no_list.includes("7"))) {
@@ -502,6 +502,7 @@ CategoryService = __decorate([
     __param(0, (0, typedi_1.Inject)('seatModel')),
     __param(1, (0, typedi_1.Inject)('tripModel')),
     __param(2, (0, typedi_1.Inject)('userModel')),
-    __metadata("design:paramtypes", [Object, Object, Object])
+    __param(3, (0, typedi_1.Inject)('seatHistoryModel')),
+    __metadata("design:paramtypes", [Object, Object, Object, Object])
 ], CategoryService);
 exports.default = CategoryService;

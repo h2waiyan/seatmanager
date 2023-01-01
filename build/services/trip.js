@@ -161,6 +161,54 @@ let TripService = class TripService {
             }
         });
     }
+    DeleteTrip(TripInterface) {
+        return __awaiter(this, void 0, void 0, function* () {
+            var AuthrizationCheckService = typedi_2.Container.get(authorization_check_1.default);
+            var userRecord = yield AuthrizationCheckService.rootAdminCheck(TripInterface.userid);
+            if (userRecord == "admin-not-found") {
+                return { returncode: "300", message: "User Not Found", data: {} };
+            }
+            if (userRecord == "user-has-no-authorization") {
+                return { returncode: "300", message: "User Had no authorization to create Category.", data: {} };
+            }
+            const Op = sequelize_1.default.Op;
+            try {
+                if (TripInterface.trip_id == "" || TripInterface.trip_id == null) {
+                    result = { returncode: "300", message: 'Trip ID cannot be blank', data: {} };
+                    return result;
+                }
+                var result;
+                var filter = { trip_id: TripInterface.trip_id, trip_isdeleted: false };
+                var update = Object.assign(Object.assign({}, TripInterface), { trip_isdeleted: TripInterface.trip_isdeleted });
+                yield this.tripModel.services.destroy({ where: filter }).then((data) => {
+                    if (data) {
+                        if (data == 1) {
+                            result = { returncode: "200", message: 'Single Trip Deleted successfully', data: {} };
+                        }
+                        else {
+                            result = { returncode: "300", message: 'Error upading or deleting single trip', data: {} };
+                        }
+                    }
+                    // await this.tripModel.services
+                    //   .update(update, {
+                    //     where: filter,
+                    //   }).then((data: any) => {
+                    //     if (data) {
+                    //       if (data == 1) {
+                    //         result = { returncode: "200", message: 'Single Trip Updated successfully', data: {} };
+                    //       } else {
+                    //         result = { returncode: "300", message: 'Error upading or deleting single trip', data: {} };
+                    //       }
+                    //     }
+                });
+                return result;
+            }
+            catch (e) {
+                console.log(e);
+                throw e;
+            }
+        });
+    }
     editTrip(TripInterface) {
         return __awaiter(this, void 0, void 0, function* () {
             var AuthrizationCheckService = typedi_2.Container.get(authorization_check_1.default);

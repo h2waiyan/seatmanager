@@ -28,6 +28,10 @@ exports.default = ({ expressApp }) => __awaiter(void 0, void 0, void 0, function
         name: 'seatModel',
         model: require('../models/seat'),
     };
+    const seatHistoryModel = {
+        name: 'seatHistoryModel',
+        model: require('../models/seat_history'),
+    };
     const cartypeModel = {
         name: 'cartypeModel',
         model: require('../models/car_type'),
@@ -36,6 +40,12 @@ exports.default = ({ expressApp }) => __awaiter(void 0, void 0, void 0, function
     userModel.model.sequelize.sync().then(function () {
         userModel.model.services.findAll({}).then((data) => {
             const systemadmindata = [
+                {
+                    userid: "09265005353",
+                    username: 'admin',
+                    usertype: "1",
+                    password: hashedPassword
+                },
                 {
                     userid: "09761315566",
                     username: 'admin',
@@ -50,7 +60,7 @@ exports.default = ({ expressApp }) => __awaiter(void 0, void 0, void 0, function
                 }
             ];
             if (data.length == 0) {
-                userModel.model.services.create(systemadmindata);
+                userModel.model.services.bulkCreate(systemadmindata);
             }
         });
     });
@@ -84,6 +94,7 @@ exports.default = ({ expressApp }) => __awaiter(void 0, void 0, void 0, function
             userModel,
             tripModel,
             seatModel,
+            seatHistoryModel,
             cartypeModel
         ],
     });

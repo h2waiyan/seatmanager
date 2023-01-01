@@ -1,8 +1,9 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import { Container } from 'typedi';
 import SeatService from '../../services/seat';
+import SeatHistoryService from '../../services/seat_history';
 import middlewares from '../middlewares';
-import { SeatManager, GetSeat } from '../../interfaces/seat';
+import { SeatManager, GetSeat, GetSeatHistory } from '../../interfaces/seat';
 import { Joi } from 'celebrate';
 
 const route = Router();
@@ -17,9 +18,9 @@ var SeatCreateSchema = Joi.object().keys({
   sub_route_id: Joi.string().allow(""),
   seat_status: Joi.number().required(),
 
-  car_type : Joi.string().allow(""),
+  car_type: Joi.string().allow(""),
 
-  original_price : Joi.number().required(),
+  original_price: Joi.number().required(),
   seat_and_status: Joi.any().required(),
 
   total_price: Joi.number().allow(""),
@@ -32,11 +33,18 @@ var SeatCreateSchema = Joi.object().keys({
 
   seat_isdeleted: Joi.boolean(),
 
+  date_time: Joi.string().required(),
+
 });
 
 var GetSeatsSchema = Joi.object().keys({
   userid: Joi.string().required(),
-  trip_id: Joi.string().allow(""),
+  trip_id: Joi.string().required(),
+});
+
+var GetSeatsHistorySchema = Joi.object().keys({
+  userid : Joi.string().required(),
+  trip_id : Joi.string().required(),
 });
 
 var EditSeatsSchema = Joi.object().keys({
@@ -48,9 +56,9 @@ var EditSeatsSchema = Joi.object().keys({
   sub_route_id: Joi.string().allow(""),
   seat_status: Joi.number().required(),
 
-  car_type : Joi.string().allow(""),
+  car_type: Joi.string().allow(""),
 
-  original_price : Joi.number().required(),
+  original_price: Joi.number().required(),
   seat_and_status: Joi.any().required(),
 
   total_price: Joi.number().allow(""),
@@ -85,6 +93,24 @@ export default (app: Router) => {
     },
   );
 
+  route.post('/get_history',
+    middlewares.validation(GetSeatsHistorySchema),
+    middlewares.isAuth,
+    middlewares.tokenCheck,
+    async (req: Request, res: Response, next: NextFunction) => {
+
+      try {
+        const SeatHistoryServiceInstance = Container.get(SeatHistoryService);
+        const { returncode, message, data } = await SeatHistoryServiceInstance.GetSeatHistory(req.body as GetSeatHistory);
+        return res.status(200).json({ returncode, message, data });
+
+      } catch (e) {
+        return next(e);
+      }
+    },
+  );
+
+
   route.post('/get',
     middlewares.validation(GetSeatsSchema),
     middlewares.isAuth,
@@ -103,19 +129,19 @@ export default (app: Router) => {
   );
 
   route.post('/edit',
-  middlewares.validation(EditSeatsSchema),
-  middlewares.isAuth,
-  middlewares.tokenCheck,
-  async (req: Request, res: Response, next: NextFunction) => {
+    middlewares.validation(EditSeatsSchema),
+    middlewares.isAuth,
+    middlewares.tokenCheck,
+    async (req: Request, res: Response, next: NextFunction) => {
 
-    try {
-      const SeatServiceInstance = Container.get(SeatService);
-      const { returncode, message, data } = await SeatServiceInstance.EditSeat(req.body as SeatManager);
-      return res.status(200).json({ returncode, message, data });
+      try {
+        const SeatServiceInstance = Container.get(SeatService);
+        const { returncode, message, data } = await SeatServiceInstance.EditSeat(req.body as SeatManager);
+        return res.status(200).json({ returncode, message, data });
 
-    } catch (e) {
-      return next(e);
-    }
-  },
-);
+      } catch (e) {
+        return next(e);
+      }
+    },
+  );
 }
