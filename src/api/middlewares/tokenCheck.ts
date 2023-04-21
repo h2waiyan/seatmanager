@@ -21,7 +21,7 @@ module.exports = async (req: any, res: any, next: any) => {
         var useridfromtoken = decodedToken.userid;
 
         var userCheck: any;
-        var sessionexpired : any ;
+        var sessionexpired: any;
 
         await userModel.services.findAll(
             { where: { userid: req.body.userid, isdeleted: false } }
@@ -29,7 +29,7 @@ module.exports = async (req: any, res: any, next: any) => {
             if (data.length > 0) {
                 userCheck = data[0]
                 sessionexpired = userCheck.sessionexpired;
-                
+
             }
         })
 
@@ -42,9 +42,9 @@ module.exports = async (req: any, res: any, next: any) => {
         }
 
         else {
-         
-            if (sessionexpired == true ) {
-               
+
+            if (sessionexpired == true) {
+
                 const returncode = "302";
                 const message = "Session Expired"
                 res.status(200).json({

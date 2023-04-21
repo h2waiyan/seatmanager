@@ -65,6 +65,7 @@ var EditSeatsSchema = celebrate_1.Joi.object().keys({
     pickup_place: celebrate_1.Joi.string().allow(""),
     remark: celebrate_1.Joi.string().allow(""),
     seat_isdeleted: celebrate_1.Joi.boolean(),
+    date_time: celebrate_1.Joi.string().required(),
 });
 exports.default = (app) => {
     app.use('/seats', route);

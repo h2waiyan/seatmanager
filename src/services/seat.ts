@@ -31,17 +31,17 @@ export default class CategoryService {
 
       const seat_history_id = "seat_history_id_" + uuidv4();
 
-            var seatHistoryData;
+      var seatHistoryData;
 
-            seatHistoryData = {
+      seatHistoryData = {
 
-                seat_history_id: seat_history_id,
-                trip_id: SeatManager.trip_id,
-                userid: SeatManager.userid,
-                seat_no_array: JSON.stringify(SeatManager.seat_no_array),
-                seat_status: SeatManager.seat_status,
-                date_time: SeatManager.date_time,
-                seat_id: SeatManager.trip_id + JSON.stringify(SeatManager.seat_no_array),
+        seat_history_id: seat_history_id,
+        trip_id: SeatManager.trip_id,
+        userid: SeatManager.userid,
+        seat_no_array: JSON.stringify(SeatManager.seat_no_array),
+        seat_status: SeatManager.seat_status,
+        date_time: SeatManager.date_time,
+        seat_id: SeatManager.trip_id + JSON.stringify(SeatManager.seat_no_array),
       }
 
       for (let i = 0; i < SeatManager.seat_no_array.length; i++) {
@@ -106,16 +106,16 @@ export default class CategoryService {
 
       var filter = { trip_id: SeatManager.trip_id };
 
-      var [seat_create, trip_update, seat_history_create ] = await Promise
+      var [seat_create, trip_update, seat_history_create] = await Promise
         .all(
           [
             this.seatModel.services.bulkCreate(seat_list),
             this.tripModel.services.update(update, { where: filter }),
             this.seatHistoryModel.services.create(seatHistoryData)
           ]
-        )      
+        )
 
-      if (seat_create.length > 0 && trip_update.length > 0  && seat_history_create) {
+      if (seat_create.length > 0 && trip_update.length > 0 && seat_history_create) {
         return { returncode: "200", message: "Success" };
       } else {
         return { returncode: "300", message: "Fail" };
@@ -236,12 +236,18 @@ export default class CategoryService {
 
       var new_seat_no_list = [];
 
+      var seat_list_for_history = [];
+
       var front_price = 0;
       var front_id;
       var front_seat_update;
       var front_seat_filter;
 
       var ref_id = "ref_id_" + Math.floor(1000000000 + Math.random() * 9000000000) + Date.now();
+
+      const seat_history_id = "seat_history_id_" + uuidv4();
+
+      var seatHistoryData;
 
       for (var i = 0; i < SeatManager.seat_id.length; i++) {
 
@@ -250,8 +256,11 @@ export default class CategoryService {
         } else {
           seat_no_list.push(SeatManager.seat_id[i]['seat_no'])
           seat_id_list.push(SeatManager.seat_id[i]['seat_id'])
-
         }
+
+        seat_list_for_history.push(SeatManager.seat_id[i]['seat_no']);
+
+        
 
         if (SeatManager.seat_id[i]['seat_no'] == 1) {
 
@@ -278,6 +287,16 @@ export default class CategoryService {
           }
         }
 
+      }
+
+      seatHistoryData = {
+        seat_history_id: seat_history_id,
+        trip_id: SeatManager.trip_id,
+        userid: SeatManager.userid,
+        seat_no_array: JSON.stringify(seat_list_for_history),
+        seat_status: SeatManager.seat_status,
+        date_time: SeatManager.date_time,
+        seat_id: SeatManager.trip_id + JSON.stringify(SeatManager.seat_no_array),
       }
 
       if (new_seat_no_list.length == 0) {
@@ -310,18 +329,22 @@ export default class CategoryService {
 
         var trip_filter = { trip_id: SeatManager.trip_id }
 
+
+  
+
         // 2-blocked and 3-booked
         if (SeatManager.seat_status == 2 || SeatManager.seat_status == 3) {
 
-          var [seat_edit, seat_and_status_update] = await Promise
+          var [seat_edit, seat_and_status_update, seat_history_create] = await Promise
             .all(
               [
                 this.seatModel.services.update(seat_update, { where: seat_filter }),
-                this.tripModel.services.update(trip_update, { where: trip_filter })
+                this.tripModel.services.update(trip_update, { where: trip_filter }),
+                this.seatHistoryModel.services.create(seatHistoryData)
               ]
             )
 
-          if (seat_edit.length > 0 && seat_and_status_update.length > 0) {
+          if (seat_edit.length > 0 && seat_and_status_update.length > 0 && seat_history_create) {
             result = { returncode: "200", message: 'Seat Updated successfully', data: {} };
           } else {
             result = { returncode: "300", message: 'Error Upading Seat', data: {} };
@@ -346,18 +369,19 @@ export default class CategoryService {
             );
 
 
-            var [seat_delete, seat_and_status_update] = await Promise
+            var [seat_delete, seat_and_status_update, seat_history_create] = await Promise
               .all(
                 [
                   this.seatModel.services.destroy({ where: seat_filter }),
-                  this.tripModel.services.update(new_trip_update, { where: trip_filter })
+                  this.tripModel.services.update(new_trip_update, { where: trip_filter }),
+                  this.seatHistoryModel.services.create(seatHistoryData)
                 ]
               )
 
             console.log(seat_delete);
             console.log(seat_and_status_update);
 
-            if (seat_delete > 0 && seat_and_status_update.length > 0) {
+            if (seat_delete > 0 && seat_and_status_update.length > 0 && seat_history_create) {
               result = { returncode: "200", message: 'Seat Updated successfully', data: {} };
             } else {
               result = { returncode: "300", message: 'Error Upading Seat', data: {} };
@@ -376,30 +400,34 @@ export default class CategoryService {
               total_price: trip_total_price + 3000 + SeatManager.original_price
             }
 
-            var [seat_edit, seat_and_status_update] = await Promise
+            var [seat_edit, seat_and_status_update, seat_history_create] = await Promise
               .all(
                 [
                   this.seatModel.services.update(seat_update, { where: seat_filter }),
                   this.tripModel.services.update(trip_update, { where: trip_filter }),
                   this.seatModel.services.update(front_seat_update, { where: front_seat_filter }),
+                  this.seatHistoryModel.services.create(seatHistoryData)
+
                 ]
               )
 
-            if (seat_edit.length > 0 && seat_and_status_update.length > 0) {
+            if (seat_edit.length > 0 && seat_and_status_update.length > 0 && seat_history_create) {
               result = { returncode: "200", message: 'Seat Updated successfully', data: {} };
             } else {
               result = { returncode: "300", message: 'Error Upading Seat', data: {} };
             }
           } else {
-            var [seat_edit, seat_and_status_update] = await Promise
+            var [seat_edit, seat_and_status_update, seat_history_create] = await Promise
               .all(
                 [
                   this.seatModel.services.update(seat_update, { where: seat_filter }),
-                  this.tripModel.services.update(trip_update, { where: trip_filter })
+                  this.tripModel.services.update(trip_update, { where: trip_filter }),
+                  this.seatHistoryModel.services.create(seatHistoryData)
+
                 ]
               )
 
-            if (seat_edit.length > 0 && seat_and_status_update.length > 0) {
+            if (seat_edit.length > 0 && seat_and_status_update.length > 0 && seat_history_create) {
               result = { returncode: "200", message: 'Seat Updated successfully', data: {} };
             } else {
               result = { returncode: "300", message: 'Error Upading Seat', data: {} };
@@ -442,17 +470,19 @@ export default class CategoryService {
         var trip_filter = { trip_id: SeatManager.trip_id }
 
         // 2-blocked and 3-booked
-        if (SeatManager.seat_status == 2 || SeatManager.seat_status == 3) {
+        if (SeatManager.seat_status == 2 || SeatManager.seat_status == 3 && seat_history_create) {
 
           var [seat_edit, seat_and_status_update] = await Promise
             .all(
               [
                 this.seatModel.services.update(seat_update, { where: seat_filter }),
-                this.tripModel.services.update(trip_update, { where: trip_filter })
+                this.tripModel.services.update(trip_update, { where: trip_filter }),
+                  this.seatHistoryModel.services.create(seatHistoryData)
+
               ]
             )
 
-          if (seat_edit.length > 0 && seat_and_status_update.length > 0) {
+          if (seat_edit.length > 0 && seat_and_status_update.length > 0 && seat_history_create) {
             result = true;
             console.log(result);
 
@@ -468,7 +498,7 @@ export default class CategoryService {
         else if (SeatManager.seat_status == 1) {
 
           console.log(seat_no_list.includes("5") || seat_no_list.includes("6") || seat_no_list.includes("7"));
-          
+
           // for back of the back which is called nout-phone
           if (SeatManager.car_type == "1" && (seat_no_list.includes("5") || seat_no_list.includes("6") || seat_no_list.includes("7"))) {
             console.log("နောက်ဖုံးကိစ္စများ−−−−−−");
@@ -476,10 +506,11 @@ export default class CategoryService {
               seat_and_status: JSON.stringify(SeatManager.seat_and_status),
             }
 
-            var [seat_and_status_update] = await Promise
+            var [seat_and_status_update, seat_history_create] = await Promise
               .all(
                 [
-                  this.tripModel.services.update(new_trip_update, { where: trip_filter })
+                  this.tripModel.services.update(new_trip_update, { where: trip_filter }),
+                  this.seatHistoryModel.services.create(seatHistoryData)
                 ]
               )
 
@@ -493,23 +524,24 @@ export default class CategoryService {
           else {
 
             console.log("<<<<<<<<<");
-            
+
 
             var new_trip_update = {
               seat_and_status: JSON.stringify(SeatManager.seat_and_status),
             }
 
-            var [seat_delete, seat_and_status_update] = await Promise
+            var [seat_delete, seat_and_status_update, seat_history_create] = await Promise
               .all(
                 [
                   this.seatModel.services.destroy({ where: seat_filter }),
-                  this.tripModel.services.update(new_trip_update, { where: trip_filter })
+                  this.tripModel.services.update(new_trip_update, { where: trip_filter }),
+                  this.seatHistoryModel.services.create(seatHistoryData)
                 ]
               )
 
             console.log(seat_delete);
             console.log(seat_and_status_update.length)
-            
+
 
             if (seat_delete > 0 && seat_and_status_update.length > 0) {
               result = true;
@@ -537,6 +569,7 @@ export default class CategoryService {
                   this.seatModel.services.update(seat_update, { where: seat_filter }),
                   this.tripModel.services.update(trip_update, { where: trip_filter }),
                   this.seatModel.services.update(front_seat_update, { where: front_seat_filter }),
+                  this.seatHistoryModel.services.create(seatHistoryData)
                 ]
               )
 
@@ -550,7 +583,8 @@ export default class CategoryService {
               .all(
                 [
                   this.seatModel.services.update(seat_update, { where: seat_filter }),
-                  this.tripModel.services.update(trip_update, { where: trip_filter })
+                  this.tripModel.services.update(trip_update, { where: trip_filter }),
+                  this.seatHistoryModel.services.create(seatHistoryData)
                 ]
               )
 
@@ -634,7 +668,8 @@ export default class CategoryService {
               [
                 this.seatModel.services.bulkCreate(seat_list),
                 // this.seatModel.services.update(backSeatList, { where: filter }),
-                this.tripModel.services.update(update, { where: filter })
+                this.tripModel.services.update(update, { where: filter }),
+                  this.seatHistoryModel.services.create(seatHistoryData)
               ]
             )
 

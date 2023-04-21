@@ -187,11 +187,14 @@ let CategoryService = class CategoryService {
                 var seat_id_list = [];
                 var seat_no_list = [];
                 var new_seat_no_list = [];
+                var seat_list_for_history = [];
                 var front_price = 0;
                 var front_id;
                 var front_seat_update;
                 var front_seat_filter;
                 var ref_id = "ref_id_" + Math.floor(1000000000 + Math.random() * 9000000000) + Date.now();
+                const seat_history_id = "seat_history_id_" + (0, uuid_1.v4)();
+                var seatHistoryData;
                 for (var i = 0; i < SeatManager.seat_id.length; i++) {
                     if (SeatManager.seat_id[i]['seat_id'] == "") {
                         new_seat_no_list.push(SeatManager.seat_id[i]['seat_no']);
@@ -200,6 +203,7 @@ let CategoryService = class CategoryService {
                         seat_no_list.push(SeatManager.seat_id[i]['seat_no']);
                         seat_id_list.push(SeatManager.seat_id[i]['seat_id']);
                     }
+                    seat_list_for_history.push(SeatManager.seat_id[i]['seat_no']);
                     if (SeatManager.seat_id[i]['seat_no'] == 1) {
                         front_price = front_price + SeatManager.total_price + 3000;
                         front_seat_filter = { trip_id: SeatManager.trip_id, seat_id: SeatManager.seat_id[i]['seat_id'], seat_isdeleted: false };
@@ -221,6 +225,15 @@ let CategoryService = class CategoryService {
                         };
                     }
                 }
+                seatHistoryData = {
+                    seat_history_id: seat_history_id,
+                    trip_id: SeatManager.trip_id,
+                    userid: SeatManager.userid,
+                    seat_no_array: JSON.stringify(seat_list_for_history),
+                    seat_status: SeatManager.seat_status,
+                    date_time: SeatManager.date_time,
+                    seat_id: SeatManager.trip_id + JSON.stringify(SeatManager.seat_no_array),
+                };
                 if (new_seat_no_list.length == 0) {
                     var result;
                     var seat_filter = { trip_id: SeatManager.trip_id, seat_id: { [Op.or]: seat_id_list }, seat_isdeleted: false };
@@ -247,12 +260,13 @@ let CategoryService = class CategoryService {
                     var trip_filter = { trip_id: SeatManager.trip_id };
                     // 2-blocked and 3-booked
                     if (SeatManager.seat_status == 2 || SeatManager.seat_status == 3) {
-                        var [seat_edit, seat_and_status_update] = yield Promise
+                        var [seat_edit, seat_and_status_update, seat_history_create] = yield Promise
                             .all([
                             this.seatModel.services.update(seat_update, { where: seat_filter }),
-                            this.tripModel.services.update(trip_update, { where: trip_filter })
+                            this.tripModel.services.update(trip_update, { where: trip_filter }),
+                            this.seatHistoryModel.services.create(seatHistoryData)
                         ]);
-                        if (seat_edit.length > 0 && seat_and_status_update.length > 0) {
+                        if (seat_edit.length > 0 && seat_and_status_update.length > 0 && seat_history_create) {
                             result = { returncode: "200", message: 'Seat Updated successfully', data: {} };
                         }
                         else {
@@ -271,14 +285,15 @@ let CategoryService = class CategoryService {
                                 seat_and_status: JSON.stringify(SeatManager.seat_and_status),
                             };
                             console.log(">>>>>>> HERE >>>>>");
-                            var [seat_delete, seat_and_status_update] = yield Promise
+                            var [seat_delete, seat_and_status_update, seat_history_create] = yield Promise
                                 .all([
                                 this.seatModel.services.destroy({ where: seat_filter }),
-                                this.tripModel.services.update(new_trip_update, { where: trip_filter })
+                                this.tripModel.services.update(new_trip_update, { where: trip_filter }),
+                                this.seatHistoryModel.services.create(seatHistoryData)
                             ]);
                             console.log(seat_delete);
                             console.log(seat_and_status_update);
-                            if (seat_delete > 0 && seat_and_status_update.length > 0) {
+                            if (seat_delete > 0 && seat_and_status_update.length > 0 && seat_history_create) {
                                 result = { returncode: "200", message: 'Seat Updated successfully', data: {} };
                             }
                             else {
@@ -293,13 +308,14 @@ let CategoryService = class CategoryService {
                                 seat_and_status: JSON.stringify(SeatManager.seat_and_status),
                                 total_price: trip_total_price + 3000 + SeatManager.original_price
                             };
-                            var [seat_edit, seat_and_status_update] = yield Promise
+                            var [seat_edit, seat_and_status_update, seat_history_create] = yield Promise
                                 .all([
                                 this.seatModel.services.update(seat_update, { where: seat_filter }),
                                 this.tripModel.services.update(trip_update, { where: trip_filter }),
                                 this.seatModel.services.update(front_seat_update, { where: front_seat_filter }),
+                                this.seatHistoryModel.services.create(seatHistoryData)
                             ]);
-                            if (seat_edit.length > 0 && seat_and_status_update.length > 0) {
+                            if (seat_edit.length > 0 && seat_and_status_update.length > 0 && seat_history_create) {
                                 result = { returncode: "200", message: 'Seat Updated successfully', data: {} };
                             }
                             else {
@@ -307,12 +323,13 @@ let CategoryService = class CategoryService {
                             }
                         }
                         else {
-                            var [seat_edit, seat_and_status_update] = yield Promise
+                            var [seat_edit, seat_and_status_update, seat_history_create] = yield Promise
                                 .all([
                                 this.seatModel.services.update(seat_update, { where: seat_filter }),
-                                this.tripModel.services.update(trip_update, { where: trip_filter })
+                                this.tripModel.services.update(trip_update, { where: trip_filter }),
+                                this.seatHistoryModel.services.create(seatHistoryData)
                             ]);
-                            if (seat_edit.length > 0 && seat_and_status_update.length > 0) {
+                            if (seat_edit.length > 0 && seat_and_status_update.length > 0 && seat_history_create) {
                                 result = { returncode: "200", message: 'Seat Updated successfully', data: {} };
                             }
                             else {
@@ -347,13 +364,14 @@ let CategoryService = class CategoryService {
                     };
                     var trip_filter = { trip_id: SeatManager.trip_id };
                     // 2-blocked and 3-booked
-                    if (SeatManager.seat_status == 2 || SeatManager.seat_status == 3) {
+                    if (SeatManager.seat_status == 2 || SeatManager.seat_status == 3 && seat_history_create) {
                         var [seat_edit, seat_and_status_update] = yield Promise
                             .all([
                             this.seatModel.services.update(seat_update, { where: seat_filter }),
-                            this.tripModel.services.update(trip_update, { where: trip_filter })
+                            this.tripModel.services.update(trip_update, { where: trip_filter }),
+                            this.seatHistoryModel.services.create(seatHistoryData)
                         ]);
-                        if (seat_edit.length > 0 && seat_and_status_update.length > 0) {
+                        if (seat_edit.length > 0 && seat_and_status_update.length > 0 && seat_history_create) {
                             result = true;
                             console.log(result);
                         }
@@ -371,9 +389,10 @@ let CategoryService = class CategoryService {
                             var new_trip_update = {
                                 seat_and_status: JSON.stringify(SeatManager.seat_and_status),
                             };
-                            var [seat_and_status_update] = yield Promise
+                            var [seat_and_status_update, seat_history_create] = yield Promise
                                 .all([
-                                this.tripModel.services.update(new_trip_update, { where: trip_filter })
+                                this.tripModel.services.update(new_trip_update, { where: trip_filter }),
+                                this.seatHistoryModel.services.create(seatHistoryData)
                             ]);
                             if (seat_and_status_update.length > 0) {
                                 result = true;
@@ -388,10 +407,11 @@ let CategoryService = class CategoryService {
                             var new_trip_update = {
                                 seat_and_status: JSON.stringify(SeatManager.seat_and_status),
                             };
-                            var [seat_delete, seat_and_status_update] = yield Promise
+                            var [seat_delete, seat_and_status_update, seat_history_create] = yield Promise
                                 .all([
                                 this.seatModel.services.destroy({ where: seat_filter }),
-                                this.tripModel.services.update(new_trip_update, { where: trip_filter })
+                                this.tripModel.services.update(new_trip_update, { where: trip_filter }),
+                                this.seatHistoryModel.services.create(seatHistoryData)
                             ]);
                             console.log(seat_delete);
                             console.log(seat_and_status_update.length);
@@ -415,6 +435,7 @@ let CategoryService = class CategoryService {
                                 this.seatModel.services.update(seat_update, { where: seat_filter }),
                                 this.tripModel.services.update(trip_update, { where: trip_filter }),
                                 this.seatModel.services.update(front_seat_update, { where: front_seat_filter }),
+                                this.seatHistoryModel.services.create(seatHistoryData)
                             ]);
                             if (seat_edit.length > 0 && seat_and_status_update.length > 0) {
                                 result = true;
@@ -427,7 +448,8 @@ let CategoryService = class CategoryService {
                             var [seat_edit, seat_and_status_update] = yield Promise
                                 .all([
                                 this.seatModel.services.update(seat_update, { where: seat_filter }),
-                                this.tripModel.services.update(trip_update, { where: trip_filter })
+                                this.tripModel.services.update(trip_update, { where: trip_filter }),
+                                this.seatHistoryModel.services.create(seatHistoryData)
                             ]);
                             if (seat_edit.length > 0 && seat_and_status_update.length > 0) {
                                 result = true;
@@ -475,7 +497,8 @@ let CategoryService = class CategoryService {
                             .all([
                             this.seatModel.services.bulkCreate(seat_list),
                             // this.seatModel.services.update(backSeatList, { where: filter }),
-                            this.tripModel.services.update(update, { where: filter })
+                            this.tripModel.services.update(update, { where: filter }),
+                            this.seatHistoryModel.services.create(seatHistoryData)
                         ]);
                         if (result == true && seat_create.length > 0 && my_trip_update.length > 0) {
                             return { returncode: "200", message: "Success", data: {} };

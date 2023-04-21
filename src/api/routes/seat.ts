@@ -70,6 +70,8 @@ var EditSeatsSchema = Joi.object().keys({
   remark: Joi.string().allow(""),
 
   seat_isdeleted: Joi.boolean(),
+
+  date_time: Joi.string().required(),
 })
 
 

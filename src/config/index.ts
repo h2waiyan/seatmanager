@@ -24,6 +24,8 @@ export default {
 
   // CREATE USER hwy WITH PASSWORD 'pgtest';
   // CREATE DATABASE seatmanager;
+  // GRANT ALL PRIVILEGES ON DATABASE seatmanager TO 'hwy';
+
 
   //Postgrpsql Local DB config
   HOST: "localhost",
