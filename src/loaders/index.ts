@@ -19,7 +19,7 @@ export default async ({ expressApp }: { expressApp: any }) => {
     model: require('../models/seat'),
   };
 
-    const seatHistoryModel = {
+  const seatHistoryModel = {
     name: 'seatHistoryModel',
     model: require('../models/seat_history'),
   };
@@ -27,6 +27,20 @@ export default async ({ expressApp }: { expressApp: any }) => {
   const cartypeModel = {
     name: 'cartypeModel',
     model: require('../models/car_type'),
+  };
+
+  const gateListModel = {
+    name: 'gateListModel',
+    model: require('../models/gate_list'),
+  };
+
+  const routeModel = {
+    name: 'routeModel',
+    model: require('../models/route'),
+  };
+  const subrouteModel = {
+    name: 'subrouteModel',
+    model: require('../models/subroute'),
   };
 
   const hashedPassword = await argon2.hash('TastySoft@091');
@@ -55,7 +69,7 @@ export default async ({ expressApp }: { expressApp: any }) => {
           password: hashedPassword
         }
       ]
-      
+
       if (data.length == 0) {
         userModel.model.services.bulkCreate(systemadmindata);
       }
@@ -65,24 +79,24 @@ export default async ({ expressApp }: { expressApp: any }) => {
   cartypeModel.model.sequelize.sync().then(function () {
     cartypeModel.model.services.findAll({}).then((data: any) => {
 
-      const van = 
-        {
-          car_type_id: "1",
-          car_type_name: "Van",
-          no_of_seats: 7,
-          remark: "",
-          car_type_isdeleted: false,
-          userid: "09258259091"
-        };
-       const Noah7 = {
-          car_type_id: "2",
-          car_type_name: "Noah7",
-          no_of_seats: 7,
-          remark: "",
-          car_type_isdeleted: false,
-          userid: "09258259091"
-        };
-      
+      const van =
+      {
+        car_type_id: "1",
+        car_type_name: "Van",
+        no_of_seats: 7,
+        remark: "",
+        car_type_isdeleted: false,
+        userid: "09258259091"
+      };
+      const Noah7 = {
+        car_type_id: "2",
+        car_type_name: "Noah7",
+        no_of_seats: 7,
+        remark: "",
+        car_type_isdeleted: false,
+        userid: "09258259091"
+      };
+
       if (data.length == 0) {
         cartypeModel.model.services.create(van);
         cartypeModel.model.services.create(Noah7);
@@ -98,7 +112,10 @@ export default async ({ expressApp }: { expressApp: any }) => {
       tripModel,
       seatModel,
       seatHistoryModel,
-      cartypeModel
+      cartypeModel,
+      gateListModel,
+      routeModel,
+      subrouteModel
     ],
   });
 

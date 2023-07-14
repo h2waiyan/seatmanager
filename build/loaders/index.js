@@ -36,6 +36,18 @@ exports.default = ({ expressApp }) => __awaiter(void 0, void 0, void 0, function
         name: 'cartypeModel',
         model: require('../models/car_type'),
     };
+    const gateListModel = {
+        name: 'gateListModel',
+        model: require('../models/gate_list'),
+    };
+    const routeModel = {
+        name: 'routeModel',
+        model: require('../models/route'),
+    };
+    const subrouteModel = {
+        name: 'subrouteModel',
+        model: require('../models/subroute'),
+    };
     const hashedPassword = yield argon2_1.default.hash('TastySoft@091');
     userModel.model.sequelize.sync().then(function () {
         userModel.model.services.findAll({}).then((data) => {
@@ -95,7 +107,10 @@ exports.default = ({ expressApp }) => __awaiter(void 0, void 0, void 0, function
             tripModel,
             seatModel,
             seatHistoryModel,
-            cartypeModel
+            cartypeModel,
+            gateListModel,
+            routeModel,
+            subrouteModel
         ],
     });
     yield (0, express_1.default)({ app: expressApp });

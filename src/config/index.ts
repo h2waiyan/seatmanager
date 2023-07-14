@@ -25,7 +25,8 @@ export default {
   // CREATE USER hwy WITH PASSWORD 'pgtest';
   // CREATE DATABASE seatmanager;
   // GRANT ALL PRIVILEGES ON DATABASE seatmanager TO 'hwy';
-
+  // curl -sL https://deb.nodesource.com/setup_14.x -o node source_setup.sh
+  // scp -r build/* root@165.22.99.27:~/app/
 
   //Postgrpsql Local DB config
   HOST: "localhost",
