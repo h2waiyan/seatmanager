@@ -34,7 +34,7 @@ export default class UserService {
       //   var data: any;
       //   return { returncode, message, data };
       // }
-      
+
       /**
        * We use verify from argon2 to prevent 'timing based' attacks
        */
@@ -86,14 +86,14 @@ export default class UserService {
 
     if (!userRecord) {
       var data: any;
-      return { returncode : "300", message : "Admin Not Registered", data };
+      return { returncode: "300", message: "Admin Not Registered", data };
     }
 
     // var checkResult = this.checkUserAuth(userRecord);
     // return checkResult!;
     if (userRecord.usertype == 3) {
       var data: any;
-      return { returncode : "300", message : "User has no authorization to delete users.", data };
+      return { returncode: "300", message: "User has no authorization to delete users.", data };
     }
     /**
      * We use verify from argon2 to prevent 'timing based' attacks
@@ -116,7 +116,7 @@ export default class UserService {
         return { returncode, message, data };
       }
 
-      if (userRecord.usertype != 1 && deleteuserRecord.usertype == 1){
+      if (userRecord.usertype != 1 && deleteuserRecord.usertype == 1) {
         const returncode = "300";
         const message = "Can't delete Root Admin"
         var data: any;
@@ -160,7 +160,7 @@ export default class UserService {
         const returncode = "300";
         const message = "Admin Not Registered"
         var data: any;
-        return { returncode : "300", message, data };
+        return { returncode: "300", message, data };
       }
 
       if (userRecord.usertype == 3) {
@@ -268,7 +268,7 @@ export default class UserService {
         return { returncode, message, data };
       }
 
-      if (userRecord.usertype != 1 && changepwduserRecord.usertype == 1){
+      if (userRecord.usertype != 1 && changepwduserRecord.usertype == 1) {
         const returncode = "300";
         const message = "Can't reset Root Admin's Password"
         var data: any;
@@ -282,7 +282,7 @@ export default class UserService {
       const hashedPassword = await argon2.hash(req.body.newpassword);
 
       const filter = { userid: req.body.changepwduserid };
-      const update = { password: hashedPassword, sessionexpired : true };
+      const update = { password: hashedPassword, sessionexpired: true };
       try {
         var result: any;
         // Mysql function to update data
@@ -340,14 +340,13 @@ export default class UserService {
               [Op.or]: [{ usertype: 2, isdeleted: false }, { usertype: 3, isdeleted: false }],
             }
 
-            // Mysql function to delete dat{a
             await this.userModel.services.findAll({ where: filter }).then((data: any) => {
               if (data) {
                 const returncode = "200";
                 const message = "User List"
 
                 console.log(data);
-                
+
 
                 var templist: any[] = [];
                 data.map((item: any) => {
@@ -356,8 +355,8 @@ export default class UserService {
                       userid: item.userid,
                       usertype: item.usertype,
                       username: item.username,
-                      gateid : item.gate_id,
-                      servicefee : item.service_fee_id,
+                      gateid: item.gate_id,
+                      servicefee: item.service_fee_id,
                       remark: item.remark
                     };
 
@@ -487,7 +486,7 @@ export default class UserService {
       var userRecord: any;
       await this.userModel.services.findAll(
         { where: { userid: req.body.edituserid } }
-        ).then((data: any) => {
+      ).then((data: any) => {
         if (data.length > 0) {
           userRecord = data[0];
         }

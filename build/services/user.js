@@ -325,7 +325,6 @@ let UserService = class UserService {
                             const filter = {
                                 [Op.or]: [{ usertype: 2, isdeleted: false }, { usertype: 3, isdeleted: false }],
                             };
-                            // Mysql function to delete dat{a
                             yield this.userModel.services.findAll({ where: filter }).then((data) => {
                                 if (data) {
                                     const returncode = "200";

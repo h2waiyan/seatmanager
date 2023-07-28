@@ -20,6 +20,9 @@ var SeatCreateSchema = Joi.object().keys({
 
   car_type: Joi.string().allow(""),
 
+  front_seat_price: Joi.number().required(),
+  back_seat_price: Joi.number().required(),
+
   original_price: Joi.number().required(),
   seat_and_status: Joi.any().required(),
 
@@ -43,8 +46,8 @@ var GetSeatsSchema = Joi.object().keys({
 });
 
 var GetSeatsHistorySchema = Joi.object().keys({
-  userid : Joi.string().required(),
-  trip_id : Joi.string().required(),
+  userid: Joi.string().required(),
+  trip_id: Joi.string().required(),
 });
 
 var EditSeatsSchema = Joi.object().keys({
@@ -57,6 +60,9 @@ var EditSeatsSchema = Joi.object().keys({
   seat_status: Joi.number().required(),
 
   car_type: Joi.string().allow(""),
+
+  front_seat_price: Joi.number().required(),
+  back_seat_price: Joi.number().required(),
 
   original_price: Joi.number().required(),
   seat_and_status: Joi.any().required(),

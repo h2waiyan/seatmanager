@@ -34,7 +34,6 @@ export default class CategoryService {
       var seatHistoryData;
 
       seatHistoryData = {
-
         seat_history_id: seat_history_id,
         trip_id: SeatManager.trip_id,
         userid: SeatManager.userid,
@@ -54,7 +53,8 @@ export default class CategoryService {
 
         if (SeatManager.seat_no_array[i] == 1) {
 
-          seat_total_price = SeatManager.total_price + 3000;
+          // seat_total_price = SeatManager.total_price + 3000;
+          seat_total_price = SeatManager.front_seat_price;
 
           seatData = {
             ...SeatManager,
@@ -67,7 +67,7 @@ export default class CategoryService {
         }
         else {
 
-          seat_total_price = SeatManager.total_price;
+          seat_total_price = SeatManager.back_seat_price;
 
           seatData = {
             ...SeatManager,
@@ -260,11 +260,10 @@ export default class CategoryService {
 
         seat_list_for_history.push(SeatManager.seat_id[i]['seat_no']);
 
-        
-
         if (SeatManager.seat_id[i]['seat_no'] == 1) {
 
           front_price = front_price + SeatManager.total_price + 3000;
+          // front_price = front_price + SeatManager.front_seat_price;
 
           front_seat_filter = { trip_id: SeatManager.trip_id, seat_id: SeatManager.seat_id[i]['seat_id'], seat_isdeleted: false };
 
@@ -330,7 +329,7 @@ export default class CategoryService {
         var trip_filter = { trip_id: SeatManager.trip_id }
 
 
-  
+
 
         // 2-blocked and 3-booked
         if (SeatManager.seat_status == 2 || SeatManager.seat_status == 3) {
@@ -398,6 +397,7 @@ export default class CategoryService {
             trip_update = {
               seat_and_status: JSON.stringify(SeatManager.seat_and_status),
               total_price: trip_total_price + 3000 + SeatManager.original_price
+              // total_price: trip_total_price + SeatManager.front_seat_price
             }
 
             var [seat_edit, seat_and_status_update, seat_history_create] = await Promise
@@ -477,7 +477,7 @@ export default class CategoryService {
               [
                 this.seatModel.services.update(seat_update, { where: seat_filter }),
                 this.tripModel.services.update(trip_update, { where: trip_filter }),
-                  this.seatHistoryModel.services.create(seatHistoryData)
+                this.seatHistoryModel.services.create(seatHistoryData)
 
               ]
             )
@@ -561,6 +561,7 @@ export default class CategoryService {
             trip_update = {
               seat_and_status: JSON.stringify(SeatManager.seat_and_status),
               total_price: trip_total_price + 3000 + SeatManager.original_price
+              // total_price: trip_total_price + SeatManager.front_seat_price
             }
 
             var [seat_edit, seat_and_status_update] = await Promise
@@ -614,6 +615,7 @@ export default class CategoryService {
             if (new_seat_no_list[i] == 1) {
 
               seat_total_price = SeatManager.total_price + 3000;
+              // seat_total_price = SeatManager.front_seat_price
 
               seatData = {
                 ...SeatManager,
@@ -669,7 +671,7 @@ export default class CategoryService {
                 this.seatModel.services.bulkCreate(seat_list),
                 // this.seatModel.services.update(backSeatList, { where: filter }),
                 this.tripModel.services.update(update, { where: filter }),
-                  this.seatHistoryModel.services.create(seatHistoryData)
+                this.seatHistoryModel.services.create(seatHistoryData)
               ]
             )
 
