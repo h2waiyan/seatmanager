@@ -114,8 +114,6 @@ export default class AuthService {
                 try {
                     var result: any;
 
-
-                    // Mysql function to delete data
                     await this.gateListModel.services.findAll({ where: { gate_isdeleted: false } }).then((data: any) => {
                         if (data) {
                             const returncode = "200";

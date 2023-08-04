@@ -28,8 +28,9 @@ const typedi_1 = require("typedi");
 const sequelize_1 = __importDefault(require("sequelize"));
 const uuid_1 = require("uuid");
 let AuthService = class AuthService {
-    constructor(routeModel, userModel) {
+    constructor(routeModel, gateListModel, userModel) {
         this.routeModel = routeModel;
+        this.gateListModel = gateListModel;
         this.userModel = userModel;
     }
     CreateRoute(IRoute) {
@@ -102,16 +103,40 @@ let AuthService = class AuthService {
                     return { returncode, message, data };
                 }
                 else {
+                    var gateResult;
+                    var result;
+                    var templist = [];
                     try {
-                        var result;
-                        // Mysql function to delete data
+                        yield this.gateListModel.services.findAll({ where: { gate_isdeleted: false } }).then((data) => {
+                            if (data) {
+                                gateResult = data;
+                            }
+                        });
                         yield this.routeModel.services.findAll({ where: { route_isdeleted: false } }).then((data) => {
                             if (data) {
                                 const returncode = "200";
                                 const message = "Route List";
-                                console.log(data);
+                                data.map((item) => {
+                                    gateResult.map((el) => {
+                                        if (item.gate_id == el.gate_id) {
+                                            var tempitem = {
+                                                route_id: item.route_id,
+                                                route_name: item.route_name,
+                                                remark: item.remark,
+                                                route_isdeleted: item.route_isdeleted,
+                                                userid: item.userid,
+                                                gate_id: el.gate_id,
+                                                gate_name: el.gate_name
+                                            };
+                                            templist.push(tempitem);
+                                        }
+                                    });
+                                });
+                                console.log(templist);
                                 // return { returncode, message, data };
-                                result = { returncode, message, data };
+                                result = {
+                                    returncode, message, data: templist
+                                };
                             }
                             else {
                                 const returncode = "300";
@@ -289,7 +314,8 @@ let AuthService = class AuthService {
 AuthService = __decorate([
     (0, typedi_1.Service)(),
     __param(0, (0, typedi_1.Inject)('routeModel')),
-    __param(1, (0, typedi_1.Inject)('userModel')),
-    __metadata("design:paramtypes", [Object, Object])
+    __param(1, (0, typedi_1.Inject)('gateListModel')),
+    __param(2, (0, typedi_1.Inject)('userModel')),
+    __metadata("design:paramtypes", [Object, Object, Object])
 ], AuthService);
 exports.default = AuthService;

@@ -14,6 +14,7 @@ import { v4 as uuidv4 } from 'uuid';
 export default class AuthService {
     constructor(
         @Inject('routeModel') private routeModel: any,
+        @Inject('gateListModel') private gateListModel: any,
         @Inject('userModel') private userModel: any,
         // @Inject('noti_deviceModel') private noti_deviceModel: any,
 
@@ -111,19 +112,48 @@ export default class AuthService {
                 return { returncode, message, data };
             } else {
 
-                try {
-                    var result: any;
+                var gateResult: any;
+                var result: any;
+                var templist: any[] = [];
 
-                    // Mysql function to delete data
+                try {
+                    await this.gateListModel.services.findAll({ where: { gate_isdeleted: false } }).then((data: any) => {
+                        if (data) {
+                            gateResult = data;
+                        }
+                    });
+
+
                     await this.routeModel.services.findAll({ where: { route_isdeleted: false } }).then((data: any) => {
                         if (data) {
                             const returncode = "200";
                             const message = "Route List"
 
-                            console.log(data);
+                            data.map((item: any) => {
+                                gateResult.map((el: any) => {
+                                    if (item.gate_id == el.gate_id) {
+                                        var tempitem = {
+                                            route_id: item.route_id,
+                                            route_name: item.route_name,
+                                            remark: item.remark,
+                                            route_isdeleted: item.route_isdeleted,
+                                            userid: item.userid,
+                                            gate_id: el.gate_id,
+                                            gate_name: el.gate_name
+                                        };
+
+                                        templist.push(tempitem);
+                                    }
+                                })
+
+                            });
+
+                            console.log(templist);
 
                             // return { returncode, message, data };
-                            result = { returncode, message, data };
+                            result = {
+                                returncode, message, data: templist
+                            };
                         } else {
                             const returncode = "300";
                             const message = "Route list not found"

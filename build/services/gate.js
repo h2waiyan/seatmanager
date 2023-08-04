@@ -105,7 +105,6 @@ let AuthService = class AuthService {
                     // if (userRecord.usertype == 1 || userRecord.usertype == 2) {
                     try {
                         var result;
-                        // Mysql function to delete data
                         yield this.gateListModel.services.findAll({ where: { gate_isdeleted: false } }).then((data) => {
                             if (data) {
                                 const returncode = "200";

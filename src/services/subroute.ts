@@ -14,6 +14,7 @@ import { v4 as uuidv4 } from 'uuid';
 export default class AuthService {
     constructor(
         @Inject('subrouteModel') private subrouteModel: any,
+        @Inject('routeModel') private routeModel: any,
         @Inject('userModel') private userModel: any,
         // @Inject('noti_deviceModel') private noti_deviceModel: any,
 
@@ -50,7 +51,7 @@ export default class AuthService {
                 route_id: ISubroute.route_id,
                 subroute_id: subroute_id,
                 subroute_name: ISubroute.subroute_name,
-                cartype_id: ISubroute.cartype_id,
+                car_type_id: ISubroute.cartype_id,
                 front_seat_price: ISubroute.front_seat_price,
                 back_seat_price: ISubroute.back_seat_price,
                 remark: ISubroute.remark,
@@ -118,26 +119,63 @@ export default class AuthService {
             } else {
 
                 try {
+                    var routeResult: any;
                     var result: any;
+                    var templist: any[] = [];
 
-                    // Mysql function to delete data
-                    await this.subrouteModel.services.findAll({ where: { subroute_isdeleted: false } }).then((data: any) => {
+                    await this.routeModel.services.findAll({ where: { route_isdeleted: false } }).then(async (data: any) => {
                         if (data) {
-                            const returncode = "200";
-                            const message = "SubRoute List"
-
-                            console.log(data);
-
-                            // return { returncode, message, data };
-                            result = { returncode, message, data };
-                        } else {
-                            const returncode = "300";
-                            const message = "SubRoute list not found"
-                            var data: any;
-                            result = { returncode, message, data };
-                            // throw new Error('Error getting the users.');
+                            routeResult = data;
                         }
+                        // Mysql function to delete data
+                        await this.subrouteModel.services.findAll({ where: { subroute_isdeleted: false } }).then((data: any) => {
+                            if (data) {
+                                const returncode = "200";
+                                const message = "SubRoute List"
+
+                                console.log(data);
+
+                                data.map((item: any) => {
+                                    routeResult.map((el: any) => {
+
+                                        if (item.route_id == el.route_id) {
+
+                                            console.log("|||||||||||");
+                                            console.log(el);
+
+                                            var tempitem = {
+                                                subroute_id: item.subroute_id,
+                                                route_id: item.route_id,
+                                                subroute_name: item.subroute_name,
+                                                car_type_id: item.car_type_id,
+                                                front_seat_price: item.front_seat_price,
+                                                back_seat_price: item.back_seat_price,
+                                                remark: item.remark,
+                                                subroute_isdeleted: item.subroute_isdeleted,
+                                                userid: item.userid,
+                                                gate_id: el.gate_id,
+                                                route_name: el.route_name,
+                                            };
+
+                                            templist.push(tempitem);
+                                        }
+                                    })
+
+                                });
+
+                                console.log(templist);
+
+                                result = { returncode, message, data: templist };
+                            } else {
+                                const returncode = "300";
+                                const message = "SubRoute list not found"
+                                var data: any;
+                                result = { returncode, message, data };
+
+                            }
+                        });
                     });
+                    console.log(result);
                     return result;
                 } catch (e) {
                     throw e;
@@ -145,6 +183,7 @@ export default class AuthService {
 
 
             }
+
 
         } catch (e) {
             throw e;
