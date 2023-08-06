@@ -53,24 +53,24 @@ export default class CategoryService {
         if (SeatManager.seat_no_array[i] == "1") {
 
 
-          seat_total_price = SeatManager.front_seat_price;
+          seat_total_price = SeatManager.front_seat_price - SeatManager.discount;
 
           seatData = {
             ...SeatManager,
             seat_id: seat_id,
             seat_no_array: SeatManager.seat_no_array[i],
-            total_price: SeatManager.seat_status == 4 ? SeatManager.front_seat_price : 0,
+            total_price: SeatManager.seat_status == 4 ? SeatManager.front_seat_price - SeatManager.discount : 0,
             ref_id: ref_id
           }
 
         }
         else {
 
-          seat_total_price = SeatManager.back_seat_price;
+          seat_total_price = SeatManager.back_seat_price - SeatManager.discount;
 
           seatData = {
             ...SeatManager,
-            total_price: SeatManager.seat_status == 4 ? SeatManager.back_seat_price : 0,
+            total_price: SeatManager.seat_status == 4 ? SeatManager.back_seat_price - SeatManager.discount : 0,
             seat_id: seat_id,
             seat_no_array: SeatManager.seat_no_array[i],
             ref_id: ref_id,
@@ -95,8 +95,7 @@ export default class CategoryService {
 
         update = {
           seat_and_status: JSON.stringify(SeatManager.seat_and_status),
-          total_price: trip_total_price - (SeatManager.discount * SeatManager.seat_and_status['sold'])
-
+          total_price: trip_total_price
         };
 
 
@@ -283,7 +282,9 @@ export default class CategoryService {
 
           trip_update = {
             seat_and_status: JSON.stringify(SeatManager.seat_and_status),
-            total_price: (SeatManager.seat_and_status['sold'] * SeatManager.back_seat_price) + SeatManager.front_seat_price + SeatManager.original_price - (SeatManager.discount * SeatManager.seat_and_status['sold'])
+
+            total_price: SeatManager.original_price + (SeatManager.front_seat_price - SeatManager.discount) + ((SeatManager.seat_and_status['sold'] - 1) * (SeatManager.back_seat_price - SeatManager.discount))
+            // total_price: (SeatManager.seat_and_status['sold'] * SeatManager.back_seat_price) + SeatManager.front_seat_price + SeatManager.original_price - (SeatManager.discount * SeatManager.seat_and_status['sold'])
           }
         }
 
@@ -328,7 +329,8 @@ export default class CategoryService {
 
         trip_update = {
           seat_and_status: JSON.stringify(SeatManager.seat_and_status),
-          total_price: SeatManager.seat_and_status['sold'] * SeatManager.back_seat_price + SeatManager.original_price - (SeatManager.discount * SeatManager.seat_and_status['sold'])
+          total_price: SeatManager.original_price + (SeatManager.seat_and_status['sold'] * (SeatManager.back_seat_price - SeatManager.discount))
+
         }
 
         var trip_filter = { trip_id: SeatManager.trip_id }
@@ -408,7 +410,9 @@ export default class CategoryService {
             trip_update = {
               seat_and_status: JSON.stringify(SeatManager.seat_and_status),
               // total_price: trip_total_price + 3000 + SeatManager.original_price
-              total_price: (SeatManager.seat_and_status['sold'] * SeatManager.back_seat_price) + (SeatManager.front_seat_price - SeatManager.back_seat_price) + SeatManager.original_price - (SeatManager.discount * SeatManager.seat_and_status['sold'])
+              total_price: SeatManager.original_price + ((SeatManager.seat_and_status['sold'] - 1) * (SeatManager.back_seat_price - SeatManager.discount)) + SeatManager.front_seat_price - SeatManager.discount
+
+              // (SeatManager.seat_and_status['sold'] * SeatManager.back_seat_price) + (SeatManager.front_seat_price - SeatManager.back_seat_price) + SeatManager.original_price - (SeatManager.discount * SeatManager.seat_and_status['sold'])
             }
 
             var [seat_edit, seat_and_status_update, front_seat_edit, seat_history_create] = await Promise
@@ -470,11 +474,11 @@ export default class CategoryService {
 
         }
 
-        var trip_total_price = (SeatManager.seat_and_status['sold'] * SeatManager.back_seat_price);
+        var trip_total_price = (SeatManager.seat_and_status['sold'] * (SeatManager.back_seat_price - SeatManager.discount));
 
         trip_update = {
           seat_and_status: JSON.stringify(SeatManager.seat_and_status),
-          total_price: trip_total_price + SeatManager.original_price - (SeatManager.discount * SeatManager.seat_and_status['sold'])
+          total_price: trip_total_price + SeatManager.original_price
         }
 
         var trip_filter = { trip_id: SeatManager.trip_id }
@@ -578,7 +582,8 @@ export default class CategoryService {
 
             trip_update = {
               seat_and_status: JSON.stringify(SeatManager.seat_and_status),
-              total_price: (SeatManager.seat_and_status['sold'] * SeatManager.back_seat_price) + (SeatManager.front_seat_price - SeatManager.back_seat_price) + SeatManager.original_price - (SeatManager.discount * SeatManager.seat_and_status['sold'])
+              total_price: SeatManager.original_price + (SeatManager.front_seat_price - SeatManager.discount) + ((SeatManager.seat_and_status['sold'] - 1) * (SeatManager.back_seat_price - SeatManager.discount))
+
               // total_price: trip_total_price + SeatManager.front_seat_price
             }
 
