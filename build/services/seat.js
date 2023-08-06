@@ -185,6 +185,7 @@ let CategoryService = class CategoryService {
                 var front_seat_update;
                 var front_seat_filter;
                 var seat_update;
+                var new_trip_update;
                 var trip_update;
                 var ref_id = "ref_id_" + Math.floor(1000000000 + Math.random() * 9000000000) + Date.now();
                 const seat_history_id = "seat_history_id_" + (0, uuid_1.v4)();
@@ -285,8 +286,9 @@ let CategoryService = class CategoryService {
                         }
                         // book, blocked, sold ကို open ပြန်ပြောင်းတာ
                         else {
-                            var new_trip_update = {
+                            new_trip_update = {
                                 seat_and_status: JSON.stringify(SeatManager.seat_and_status),
+                                trip_total_price: SeatManager.original_price
                             };
                             console.log(">>>>>>> HERE >>>>>");
                             var [seat_delete, seat_and_status_update, seat_history_create] = yield Promise
@@ -376,7 +378,7 @@ let CategoryService = class CategoryService {
                     // 2-blocked and 3-booked
                     if (SeatManager.seat_status == 2 || SeatManager.seat_status == 3 && seat_history_create) {
                         seat_update = Object.assign(Object.assign({}, seat_update), { total_price: 0 });
-                        trip_update = Object.assign(Object.assign({}, trip_update), { total_price: (SeatManager.seat_and_status['sold'] * SeatManager.back_seat_price) });
+                        trip_update = Object.assign(Object.assign({}, trip_update), { total_price: SeatManager.original_price - (SeatManager.seat_id.length * (SeatManager.back_seat_price + SeatManager.discount)) });
                         var [seat_edit, seat_and_status_update] = yield Promise
                             .all([
                             this.seatModel.services.update(seat_update, { where: seat_filter }),
@@ -398,8 +400,9 @@ let CategoryService = class CategoryService {
                         // for back of the back which is called nout-phone
                         if (SeatManager.car_type == "1" && (seat_no_list.includes("5") || seat_no_list.includes("6") || seat_no_list.includes("7"))) {
                             console.log("နောက်ဖုံးကိစ္စများ−−−−−−");
-                            var new_trip_update = {
+                            new_trip_update = {
                                 seat_and_status: JSON.stringify(SeatManager.seat_and_status),
+                                total_price: SeatManager.original_price
                             };
                             var [seat_and_status_update, seat_history_create] = yield Promise
                                 .all([
@@ -416,8 +419,9 @@ let CategoryService = class CategoryService {
                         // book, blocked, sold ကို open ပြန်ပြောင်းတာ
                         else {
                             console.log("<<<<<<<<<");
-                            var new_trip_update = {
+                            new_trip_update = {
                                 seat_and_status: JSON.stringify(SeatManager.seat_and_status),
+                                total_price: SeatManager.original_price - (SeatManager.total_price + SeatManager.discount)
                             };
                             var [seat_delete, seat_and_status_update, seat_history_create] = yield Promise
                                 .all([

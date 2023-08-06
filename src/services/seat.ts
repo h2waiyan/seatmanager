@@ -236,7 +236,7 @@ export default class CategoryService {
       var front_seat_filter;
 
       var seat_update;
-
+      var new_trip_update;
       var trip_update;
 
       var ref_id = "ref_id_" + Math.floor(1000000000 + Math.random() * 9000000000) + Date.now();
@@ -363,8 +363,9 @@ export default class CategoryService {
           }
           // book, blocked, sold ကို open ပြန်ပြောင်းတာ
           else {
-            var new_trip_update = {
+            new_trip_update = {
               seat_and_status: JSON.stringify(SeatManager.seat_and_status),
+              trip_total_price: SeatManager.original_price
             }
 
             console.log(
@@ -492,7 +493,7 @@ export default class CategoryService {
           }
           trip_update = {
             ...trip_update,
-            total_price: (SeatManager.seat_and_status['sold'] * SeatManager.back_seat_price)
+            total_price: SeatManager.original_price - (SeatManager.seat_id.length * (SeatManager.back_seat_price + SeatManager.discount))
           }
 
           var [seat_edit, seat_and_status_update] = await Promise
@@ -525,8 +526,9 @@ export default class CategoryService {
           // for back of the back which is called nout-phone
           if (SeatManager.car_type == "1" && (seat_no_list.includes("5") || seat_no_list.includes("6") || seat_no_list.includes("7"))) {
             console.log("နောက်ဖုံးကိစ္စများ−−−−−−");
-            var new_trip_update = {
+            new_trip_update = {
               seat_and_status: JSON.stringify(SeatManager.seat_and_status),
+              total_price: SeatManager.original_price
             }
 
             var [seat_and_status_update, seat_history_create] = await Promise
@@ -548,8 +550,9 @@ export default class CategoryService {
 
             console.log("<<<<<<<<<");
 
-            var new_trip_update = {
+            new_trip_update = {
               seat_and_status: JSON.stringify(SeatManager.seat_and_status),
+              total_price: SeatManager.original_price - (SeatManager.total_price + SeatManager.discount)
             }
 
             var [seat_delete, seat_and_status_update, seat_history_create] = await Promise
