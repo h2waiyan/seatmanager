@@ -536,14 +536,17 @@ export default class CategoryService {
         // 1-open
         else if (SeatManager.seat_status == 1) {
 
-          console.log(seat_no_list.includes("5") || seat_no_list.includes("6") || seat_no_list.includes("7"));
+          new_trip_update = {
+            seat_and_status: JSON.stringify(SeatManager.seat_and_status),
+            total_price: trip_original_price - SeatManager.total_price
+          }
 
           // for back of the back which is called nout-phone
           if (SeatManager.car_type == "1" && (seat_no_list.includes("5") || seat_no_list.includes("6") || seat_no_list.includes("7"))) {
             console.log("နောက်ဖုံးကိစ္စများ−−−−−−");
             new_trip_update = {
               seat_and_status: JSON.stringify(SeatManager.seat_and_status),
-              total_price: trip_original_price
+              total_price: trip_original_price - SeatManager.total_price
             }
 
             var [seat_and_status_update, seat_history_create] = await Promise
