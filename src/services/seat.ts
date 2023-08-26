@@ -384,12 +384,14 @@ export default class CategoryService {
           else {
             new_trip_update = {
               seat_and_status: JSON.stringify(SeatManager.seat_and_status),
-              trip_total_price: trip_original_price - (SeatManager.total_price)
+              total_price: trip_original_price - (SeatManager.total_price)
             }
 
             console.log(
               ">>>>>>> HERE >>>>>"
             );
+
+            console.log(new_trip_update);
 
 
             var [seat_delete, seat_and_status_update, seat_history_create] = await Promise
@@ -400,9 +402,6 @@ export default class CategoryService {
                   this.seatHistoryModel.services.create(seatHistoryData)
                 ]
               )
-
-            console.log(seat_delete);
-            console.log(seat_and_status_update);
 
             if (seat_and_status_update.length > 0 && seat_history_create) {
               result = { returncode: "200", message: 'Seat Updated successfully', data: {} };
@@ -572,6 +571,8 @@ export default class CategoryService {
               seat_and_status: JSON.stringify(SeatManager.seat_and_status),
               total_price: trip_original_price - (SeatManager.total_price)
             }
+
+            console.log(new_trip_update);
 
             var [seat_delete, seat_and_status_update, seat_history_create] = await Promise
               .all(
