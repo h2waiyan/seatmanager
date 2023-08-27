@@ -286,7 +286,7 @@ export default class CategoryService {
             trip_id: SeatManager.trip_id,
             sub_route_id: SeatManager.sub_route_id,
             seat_status: SeatManager.seat_status,
-            total_price: SeatManager.front_seat_price,
+            total_price: SeatManager.front_seat_price - SeatManager.discount,
             customer_name: SeatManager.customer_name,
             discount: SeatManager.discount,
             phone: SeatManager.phone,
@@ -342,6 +342,9 @@ export default class CategoryService {
           seat_isdeleted: SeatManager.seat_isdeleted,
           ref_id: ref_id
         }
+
+        console.log(">>>>>> WHY 0");
+        console.log(seat_update);
 
         trip_update = {
           seat_and_status: JSON.stringify(SeatManager.seat_and_status),
@@ -417,7 +420,7 @@ export default class CategoryService {
 
           seat_update = {
             ...seat_update,
-            total_price: SeatManager.back_seat_price
+            total_price: SeatManager.back_seat_price - SeatManager.discount
           }
 
           if (seat_no_list.includes("1")) {
@@ -477,7 +480,7 @@ export default class CategoryService {
           trip_id: SeatManager.trip_id,
           sub_route_id: SeatManager.sub_route_id,
           seat_status: SeatManager.seat_status,
-          total_price: SeatManager.back_seat_price,
+          total_price: SeatManager.back_seat_price - SeatManager.discount,
           customer_name: SeatManager.customer_name,
           discount: SeatManager.discount,
           phone: SeatManager.phone,
@@ -663,7 +666,7 @@ export default class CategoryService {
 
               seatData = {
                 ...SeatManager,
-                total_price: SeatManager.front_seat_price,
+                total_price: SeatManager.front_seat_price - SeatManager.discount,
                 seat_id: seat_id,
                 seat_no_array: new_seat_no_list[i],
                 ref_id: ref_id
@@ -672,7 +675,7 @@ export default class CategoryService {
             }
             else {
 
-              seat_total_price = SeatManager.back_seat_price;
+              seat_total_price = SeatManager.back_seat_price - SeatManager.discount;
 
               seatData = {
                 ...SeatManager,

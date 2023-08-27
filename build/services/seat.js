@@ -221,7 +221,7 @@ let CategoryService = class CategoryService {
                             trip_id: SeatManager.trip_id,
                             sub_route_id: SeatManager.sub_route_id,
                             seat_status: SeatManager.seat_status,
-                            total_price: SeatManager.front_seat_price,
+                            total_price: SeatManager.front_seat_price - SeatManager.discount,
                             customer_name: SeatManager.customer_name,
                             discount: SeatManager.discount,
                             phone: SeatManager.phone,
@@ -271,6 +271,8 @@ let CategoryService = class CategoryService {
                         seat_isdeleted: SeatManager.seat_isdeleted,
                         ref_id: ref_id
                     };
+                    console.log(">>>>>> WHY 0");
+                    console.log(seat_update);
                     trip_update = {
                         seat_and_status: JSON.stringify(SeatManager.seat_and_status),
                         total_price: trip_original_price + (SeatManager.seat_id.length * (SeatManager.back_seat_price - SeatManager.discount))
@@ -324,7 +326,7 @@ let CategoryService = class CategoryService {
                     }
                     // 4-sold
                     else if (SeatManager.seat_status == 4) {
-                        seat_update = Object.assign(Object.assign({}, seat_update), { total_price: SeatManager.back_seat_price });
+                        seat_update = Object.assign(Object.assign({}, seat_update), { total_price: SeatManager.back_seat_price - SeatManager.discount });
                         if (seat_no_list.includes("1")) {
                             console.log(">>>>>");
                             console.log(front_seat_update);
@@ -371,7 +373,7 @@ let CategoryService = class CategoryService {
                         trip_id: SeatManager.trip_id,
                         sub_route_id: SeatManager.sub_route_id,
                         seat_status: SeatManager.seat_status,
-                        total_price: SeatManager.back_seat_price,
+                        total_price: SeatManager.back_seat_price - SeatManager.discount,
                         customer_name: SeatManager.customer_name,
                         discount: SeatManager.discount,
                         phone: SeatManager.phone,
@@ -503,10 +505,10 @@ let CategoryService = class CategoryService {
                             const seat_id = "seat_id_" + (0, uuid_1.v4)();
                             var seatData;
                             if (new_seat_no_list[i] == "1") {
-                                seatData = Object.assign(Object.assign({}, SeatManager), { total_price: SeatManager.front_seat_price, seat_id: seat_id, seat_no_array: new_seat_no_list[i], ref_id: ref_id });
+                                seatData = Object.assign(Object.assign({}, SeatManager), { total_price: SeatManager.front_seat_price - SeatManager.discount, seat_id: seat_id, seat_no_array: new_seat_no_list[i], ref_id: ref_id });
                             }
                             else {
-                                seat_total_price = SeatManager.back_seat_price;
+                                seat_total_price = SeatManager.back_seat_price - SeatManager.discount;
                                 seatData = Object.assign(Object.assign({}, SeatManager), { seat_id: seat_id, seat_no_array: new_seat_no_list[i], ref_id: ref_id });
                             }
                             seat_list.push(seatData);
