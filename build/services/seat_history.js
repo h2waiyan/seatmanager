@@ -43,6 +43,8 @@ let CategoryService = class CategoryService {
                     seat_history_id: seat_history_id,
                     trip_id: SeatManager.trip_id,
                     userid: SeatManager.userid,
+                    customer_name: SeatManager.customer_name,
+                    phone: SeatManager.phone,
                     seat_no_array: JSON.stringify(SeatManager.seat_no_array),
                     seat_status: SeatManager.seat_status,
                     date_time: "Test Date and Time",
@@ -86,6 +88,8 @@ let CategoryService = class CategoryService {
                             var templist = [];
                             data[0].map((item) => {
                                 var tempitem = {
+                                    "customer_name": item.customer_name,
+                                    "phone": item.phone,
                                     "seat_no_array": JSON.parse(item.seat_no_array),
                                     "trip_id": item.trip_id,
                                     "seat_status": item.seat_status,
