@@ -37,6 +37,7 @@ export default class CategoryService {
       var backSeatList: any = [];
       var trip_total_price = 0;
       var seat_total_price = 0;
+      var one_seat_price = 0;
 
       var ref_id = "ref_id_" + Math.floor(1000000000 + Math.random() * 9000000000) + Date.now();
 
@@ -48,6 +49,8 @@ export default class CategoryService {
         seat_history_id: seat_history_id,
         trip_id: SeatManager.trip_id,
         userid: SeatManager.userid,
+        customer_name: SeatManager.customer_name,
+        phone : SeatManager.phone,
         seat_no_array: JSON.stringify(SeatManager.seat_no_array),
         seat_status: SeatManager.seat_status,
         date_time: SeatManager.date_time,
@@ -63,24 +66,24 @@ export default class CategoryService {
 
         if (SeatManager.seat_no_array[i] == "1") {
 
-          seat_total_price = SeatManager.front_seat_price - SeatManager.discount;
+          one_seat_price = SeatManager.front_seat_price;
 
           seatData = {
             ...SeatManager,
             seat_id: seat_id,
             seat_no_array: SeatManager.seat_no_array[i],
-            total_price: SeatManager.seat_status == 4 ? SeatManager.front_seat_price - SeatManager.discount : 0,
+            total_price: SeatManager.seat_status == 4 ? SeatManager.front_seat_price : 0,
             ref_id: ref_id
           }
 
         }
         else {
 
-          seat_total_price = SeatManager.back_seat_price - SeatManager.discount;
+          one_seat_price = SeatManager.back_seat_price;
 
           seatData = {
             ...SeatManager,
-            total_price: SeatManager.seat_status == 4 ? SeatManager.back_seat_price - SeatManager.discount : 0,
+            total_price: SeatManager.seat_status == 4 ? SeatManager.back_seat_price : 0,
             seat_id: seat_id,
             seat_no_array: SeatManager.seat_no_array[i],
             ref_id: ref_id,
@@ -91,11 +94,13 @@ export default class CategoryService {
 
         seat_list.push(seatData);
 
-        trip_total_price = trip_total_price + seat_total_price;
+        seat_total_price = seat_total_price + one_seat_price;
 
       }
 
-      trip_total_price = trip_total_price + trip_original_price
+      seat_total_price = seat_total_price - SeatManager.discount;
+
+      trip_total_price =  trip_original_price + seat_total_price;
 
 
       var update;
@@ -310,6 +315,8 @@ export default class CategoryService {
         seat_history_id: seat_history_id,
         trip_id: SeatManager.trip_id,
         userid: SeatManager.userid,
+        customer_name: SeatManager.customer_name,
+        phone : SeatManager.phone,
         total_price: SeatManager.back_seat_price,
         seat_no_array: JSON.stringify(seat_list_for_history),
         seat_status: SeatManager.seat_status,
