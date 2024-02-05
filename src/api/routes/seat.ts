@@ -26,6 +26,8 @@ var SeatCreateSchema = Joi.object().keys({
   original_price: Joi.number().required(),
   seat_and_status: Joi.any().required(),
 
+  ref_price : Joi.number().required(),
+
   total_price: Joi.number().allow(""),
   customer_name: Joi.string().allow(""),
   discount: Joi.number().allow(""),
@@ -66,6 +68,8 @@ var EditSeatsSchema = Joi.object().keys({
 
   original_price: Joi.number().required(),
   seat_and_status: Joi.any().required(),
+
+  ref_price : Joi.number().required(),
 
   total_price: Joi.number().allow(""),
   customer_name: Joi.string().allow(""),
@@ -145,6 +149,23 @@ export default (app: Router) => {
       try {
         const SeatServiceInstance = Container.get(SeatService);
         const { returncode, message, data } = await SeatServiceInstance.EditSeat(req.body as SeatManager);
+        return res.status(200).json({ returncode, message, data });
+
+      } catch (e) {
+        return next(e);
+      }
+    },
+  );
+
+  route.post('/delete',
+    middlewares.validation(EditSeatsSchema),
+    middlewares.isAuth,
+    middlewares.tokenCheck,
+    async (req: Request, res: Response, next: NextFunction) => {
+
+      try {
+        const SeatServiceInstance = Container.get(SeatService);
+        const { returncode, message, data } = await SeatServiceInstance.DeleteSeat(req.body as SeatManager);
         return res.status(200).json({ returncode, message, data });
 
       } catch (e) {

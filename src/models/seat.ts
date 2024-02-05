@@ -12,7 +12,6 @@ const seatModel = (sequelize: any, Sequelize: any) => {
             type: Sequelize.STRING,
             allowNull: false,
         },
-
         trip_id: {
             type: Sequelize.STRING,
         },
@@ -25,7 +24,6 @@ const seatModel = (sequelize: any, Sequelize: any) => {
         total_price: {
             type: Sequelize.INTEGER,
         },
-
         customer_name: {
             type: Sequelize.STRING,
         },

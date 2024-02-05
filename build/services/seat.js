@@ -49,6 +49,7 @@ let CategoryService = class CategoryService {
                 var trip_total_price = 0;
                 var seat_total_price = 0;
                 var one_seat_price = 0;
+                var ref_price = 0;
                 var ref_id = "ref_id_" + Math.floor(1000000000 + Math.random() * 9000000000) + Date.now();
                 const seat_history_id = "seat_history_id_" + (0, uuid_1.v4)();
                 var seatHistoryData;
@@ -69,11 +70,11 @@ let CategoryService = class CategoryService {
                     var backSeatData;
                     if (SeatManager.seat_no_array[i] == "1") {
                         one_seat_price = SeatManager.front_seat_price;
-                        seatData = Object.assign(Object.assign({}, SeatManager), { seat_id: seat_id, seat_no_array: SeatManager.seat_no_array[i], total_price: SeatManager.seat_status == 4 ? SeatManager.front_seat_price : 0, ref_id: ref_id });
+                        seatData = Object.assign(Object.assign({}, SeatManager), { seat_id: seat_id, seat_no_array: SeatManager.seat_no_array[i], total_price: SeatManager.seat_status == 4 ? SeatManager.front_seat_price : 0, ref_id: ref_id, t1: ref_price });
                     }
                     else {
                         one_seat_price = SeatManager.back_seat_price;
-                        seatData = Object.assign(Object.assign({}, SeatManager), { total_price: SeatManager.seat_status == 4 ? SeatManager.back_seat_price : 0, seat_id: seat_id, seat_no_array: SeatManager.seat_no_array[i], ref_id: ref_id });
+                        seatData = Object.assign(Object.assign({}, SeatManager), { total_price: SeatManager.seat_status == 4 ? SeatManager.back_seat_price : 0, seat_id: seat_id, seat_no_array: SeatManager.seat_no_array[i], ref_id: ref_id, t1: ref_price });
                         // }
                     }
                     seat_list.push(seatData);
@@ -133,7 +134,7 @@ let CategoryService = class CategoryService {
                 try {
                     var result;
                     yield this.seatModel.services.findAll({
-                        where: { trip_id: GetSeat.trip_id }
+                        where: { trip_id: GetSeat.trip_id, seat_isdeleted: false }
                     }).then((data) => {
                         if (data.length > 0) {
                             console.log(data[0]);
@@ -279,14 +280,14 @@ let CategoryService = class CategoryService {
                     console.log(seat_update);
                     trip_update = {
                         seat_and_status: JSON.stringify(SeatManager.seat_and_status),
-                        total_price: trip_original_price + (SeatManager.seat_id.length * (SeatManager.back_seat_price)) - SeatManager.discount
+                        total_price: trip_original_price + SeatManager.ref_price
                     };
                     var trip_filter = { trip_id: SeatManager.trip_id };
                     // 2-blocked and 3-booked
                     if (SeatManager.seat_status == 2 || SeatManager.seat_status == 3) {
                         trip_update = {
                             seat_and_status: JSON.stringify(SeatManager.seat_and_status),
-                            total_price: trip_original_price - SeatManager.total_price
+                            total_price: trip_original_price - SeatManager.ref_price
                         };
                         var [seat_edit, seat_and_status_update, seat_history_create] = yield Promise
                             .all([
@@ -310,7 +311,7 @@ let CategoryService = class CategoryService {
                         else {
                             new_trip_update = {
                                 seat_and_status: JSON.stringify(SeatManager.seat_and_status),
-                                total_price: trip_original_price - (SeatManager.total_price)
+                                total_price: trip_original_price - (SeatManager.ref_price)
                             };
                             console.log(">>>>>>> HERE >>>>>");
                             console.log(new_trip_update);
@@ -330,14 +331,14 @@ let CategoryService = class CategoryService {
                     }
                     // 4-sold
                     else if (SeatManager.seat_status == 4) {
-                        seat_update = Object.assign(Object.assign({}, seat_update), { total_price: SeatManager.back_seat_price - SeatManager.discount });
+                        seat_update = Object.assign(Object.assign({}, seat_update), { total_price: SeatManager.back_seat_price });
                         if (seat_no_list.includes("1")) {
                             console.log(">>>>>");
                             console.log(front_seat_update);
                             console.log(front_seat_filter);
                             trip_update = {
                                 seat_and_status: JSON.stringify(SeatManager.seat_and_status),
-                                total_price: trip_original_price + ((SeatManager.seat_id.length - 1) * (SeatManager.back_seat_price)) + SeatManager.front_seat_price - SeatManager.discount
+                                total_price: trip_original_price + SeatManager.ref_price
                             };
                             var [seat_edit, seat_and_status_update, front_seat_edit, seat_history_create] = yield Promise
                                 .all([
@@ -370,6 +371,7 @@ let CategoryService = class CategoryService {
                     }
                     return result;
                 }
+                // new seat in the list
                 else {
                     var result;
                     var seat_filter = { trip_id: SeatManager.trip_id, seat_id: { [Op.or]: seat_id_list }, seat_isdeleted: false };
@@ -377,7 +379,7 @@ let CategoryService = class CategoryService {
                         trip_id: SeatManager.trip_id,
                         sub_route_id: SeatManager.sub_route_id,
                         seat_status: SeatManager.seat_status,
-                        total_price: SeatManager.back_seat_price - SeatManager.discount,
+                        total_price: SeatManager.back_seat_price,
                         customer_name: SeatManager.customer_name,
                         discount: SeatManager.discount,
                         phone: SeatManager.phone,
@@ -391,13 +393,13 @@ let CategoryService = class CategoryService {
                     var trip_total_price = (SeatManager.seat_id.length * (SeatManager.back_seat_price)) - SeatManager.discount;
                     trip_update = {
                         seat_and_status: JSON.stringify(SeatManager.seat_and_status),
-                        total_price: trip_original_price + trip_total_price
+                        total_price: trip_original_price + SeatManager.ref_price
                     };
                     var trip_filter = { trip_id: SeatManager.trip_id };
                     // 2-blocked and 3-booked
                     if (SeatManager.seat_status == 2 || SeatManager.seat_status == 3 && seat_history_create) {
                         seat_update = Object.assign(Object.assign({}, seat_update), { total_price: 0 });
-                        trip_update = Object.assign(Object.assign({}, trip_update), { total_price: trip_original_price - SeatManager.total_price });
+                        trip_update = Object.assign(Object.assign({}, trip_update), { total_price: trip_original_price - SeatManager.ref_price });
                         var [seat_edit, seat_and_status_update] = yield Promise
                             .all([
                             this.seatModel.services.update(seat_update, { where: seat_filter }),
@@ -417,14 +419,14 @@ let CategoryService = class CategoryService {
                     else if (SeatManager.seat_status == 1) {
                         new_trip_update = {
                             seat_and_status: JSON.stringify(SeatManager.seat_and_status),
-                            total_price: trip_original_price - SeatManager.total_price
+                            total_price: trip_original_price - SeatManager.ref_price
                         };
                         // for back of the back which is called nout-phone
                         if (SeatManager.car_type == "1" && (seat_no_list.includes("5") || seat_no_list.includes("6") || seat_no_list.includes("7"))) {
                             console.log("နောက်ဖုံးကိစ္စများ−−−−−−");
                             new_trip_update = {
                                 seat_and_status: JSON.stringify(SeatManager.seat_and_status),
-                                total_price: trip_original_price - SeatManager.total_price
+                                total_price: trip_original_price - SeatManager.ref_price
                             };
                             var [seat_and_status_update, seat_history_create] = yield Promise
                                 .all([
@@ -443,7 +445,7 @@ let CategoryService = class CategoryService {
                             console.log("<<<<<<<<<");
                             new_trip_update = {
                                 seat_and_status: JSON.stringify(SeatManager.seat_and_status),
-                                total_price: trip_original_price - (SeatManager.total_price)
+                                total_price: trip_original_price - (SeatManager.ref_price)
                             };
                             console.log(new_trip_update);
                             var [seat_delete, seat_and_status_update, seat_history_create] = yield Promise
@@ -467,7 +469,7 @@ let CategoryService = class CategoryService {
                         if (seat_no_list.includes("1")) {
                             trip_update = {
                                 seat_and_status: JSON.stringify(SeatManager.seat_and_status),
-                                total_price: trip_original_price + (SeatManager.front_seat_price) + ((SeatManager.seat_id.length - 1) * (SeatManager.back_seat_price)) - SeatManager.discount
+                                total_price: trip_original_price + SeatManager.ref_price
                                 // total_price: trip_total_price + SeatManager.front_seat_price
                             };
                             var [seat_edit, seat_and_status_update] = yield Promise
@@ -558,6 +560,56 @@ let CategoryService = class CategoryService {
             catch (e) {
                 console.log(e);
                 throw e;
+            }
+        });
+    }
+    DeleteSeat(SeatManager) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                var seatHistoryData;
+                const seat_history_id = "seat_history_id_" + (0, uuid_1.v4)();
+                seatHistoryData = {
+                    seat_history_id: seat_history_id,
+                    trip_id: SeatManager.trip_id,
+                    userid: SeatManager.userid,
+                    customer_name: SeatManager.customer_name,
+                    phone: SeatManager.phone,
+                    seat_no_array: JSON.stringify(SeatManager.seat_no_array),
+                    seat_status: SeatManager.seat_status,
+                    date_time: SeatManager.date_time,
+                    seat_id: SeatManager.trip_id + JSON.stringify(SeatManager.seat_no_array),
+                };
+                var seat_filter = { trip_id: SeatManager.trip_id, seat_isdeleted: false };
+                var seat_update = {
+                    seat_isdeleted: true
+                };
+                var trip_original_price = 0;
+                yield this.tripModel.services.findAll({ where: { trip_id: SeatManager.trip_id, trip_isdeleted: false } }).then((data) => {
+                    if (data) {
+                        trip_original_price = data[0]['total_price'];
+                    }
+                });
+                var trip_total_price = trip_original_price - SeatManager.ref_price;
+                var trip_filter = { trip_id: SeatManager.trip_id };
+                var trip_update = {
+                    total_price: trip_total_price
+                };
+                var [seat_delete, trip_update_res, seat_history_create] = yield Promise
+                    .all([
+                    this.seatModel.services.update(seat_update, { where: seat_filter }),
+                    this.tripModel.services.update(trip_update, { where: trip_filter }),
+                    this.seatHistoryModel.services.create(seatHistoryData)
+                ]);
+                if (seat_delete.length > 0 && trip_update_res.length > 0) {
+                    return { returncode: "200", message: "Success", data: {} };
+                }
+                else {
+                    return { returncode: "300", message: "Fail", data: {} };
+                }
+            }
+            catch (e) {
+                console.log(e);
+                return { returncode: "300", message: "Fail", data: {} };
             }
         });
     }

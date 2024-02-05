@@ -31,6 +31,7 @@ var SeatCreateSchema = celebrate_1.Joi.object().keys({
     back_seat_price: celebrate_1.Joi.number().required(),
     original_price: celebrate_1.Joi.number().required(),
     seat_and_status: celebrate_1.Joi.any().required(),
+    ref_price: celebrate_1.Joi.number().required(),
     total_price: celebrate_1.Joi.number().allow(""),
     customer_name: celebrate_1.Joi.string().allow(""),
     discount: celebrate_1.Joi.number().allow(""),
@@ -61,6 +62,7 @@ var EditSeatsSchema = celebrate_1.Joi.object().keys({
     back_seat_price: celebrate_1.Joi.number().required(),
     original_price: celebrate_1.Joi.number().required(),
     seat_and_status: celebrate_1.Joi.any().required(),
+    ref_price: celebrate_1.Joi.number().required(),
     total_price: celebrate_1.Joi.number().allow(""),
     customer_name: celebrate_1.Joi.string().allow(""),
     discount: celebrate_1.Joi.number().allow(""),
@@ -107,6 +109,16 @@ exports.default = (app) => {
         try {
             const SeatServiceInstance = typedi_1.Container.get(seat_1.default);
             const { returncode, message, data } = yield SeatServiceInstance.EditSeat(req.body);
+            return res.status(200).json({ returncode, message, data });
+        }
+        catch (e) {
+            return next(e);
+        }
+    }));
+    route.post('/delete', middlewares_1.default.validation(EditSeatsSchema), middlewares_1.default.isAuth, middlewares_1.default.tokenCheck, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+        try {
+            const SeatServiceInstance = typedi_1.Container.get(seat_1.default);
+            const { returncode, message, data } = yield SeatServiceInstance.DeleteSeat(req.body);
             return res.status(200).json({ returncode, message, data });
         }
         catch (e) {

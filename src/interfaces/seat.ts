@@ -13,6 +13,7 @@ export interface SeatManager {
     back_seat_price: number;
 
     original_price: number;
+    ref_price: number;
     seat_and_status: any;
 
     customer_name: string;
