@@ -155,7 +155,8 @@ let CategoryService = class CategoryService {
                                     "remark": item.remark,
                                     "userid": item.userid,
                                     "seat_isdeleted": item.seat_isdeleted,
-                                    "ref_id": item.ref_id
+                                    "ref_id": item.ref_id,
+                                    "ref_price": item.t1
                                 };
                                 templist.push(tempitem);
                             });
