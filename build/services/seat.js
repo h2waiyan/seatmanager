@@ -580,7 +580,15 @@ let CategoryService = class CategoryService {
                     date_time: SeatManager.date_time,
                     seat_id: SeatManager.trip_id + JSON.stringify(SeatManager.seat_no_array),
                 };
-                var seat_filter = { trip_id: SeatManager.trip_id, seat_isdeleted: false };
+                var seat_id_list = [];
+                for (var seat_id in SeatManager.seat_id) {
+                    seat_id_list.push(SeatManager.seat_id[seat_id]);
+                }
+                var seat_filter = {
+                    trip_id: SeatManager.trip_id,
+                    seat_id: { [Op.or]: seat_id_list },
+                    seat_isdeleted: false
+                };
                 var seat_update = {
                     seat_isdeleted: true
                 };
@@ -593,7 +601,7 @@ let CategoryService = class CategoryService {
                 var trip_total_price = trip_original_price - SeatManager.ref_price;
                 var trip_filter = { trip_id: SeatManager.trip_id };
                 var trip_update = {
-                    seat_and_status: SeatManager.seat_and_status,
+                    seat_and_status: JSON.stringify(SeatManager.seat_and_status),
                     total_price: trip_total_price
                 };
                 var [seat_delete, trip_update_res, seat_history_create] = yield Promise
