@@ -76,7 +76,7 @@ export default class CategoryService {
             seat_no_array: SeatManager.seat_no_array[i],
             total_price: SeatManager.seat_status == 4 ? SeatManager.front_seat_price : 0,
             ref_id: ref_id,
-            t1: ref_price,
+            t1: SeatManager.ref_price,
           }
 
         }
@@ -90,7 +90,7 @@ export default class CategoryService {
             seat_id: seat_id,
             seat_no_array: SeatManager.seat_no_array[i],
             ref_id: ref_id,
-            t1: ref_price,
+            t1: SeatManager.ref_price,
           }
           // }
 
@@ -788,6 +788,7 @@ export default class CategoryService {
       var trip_total_price = trip_original_price - SeatManager.ref_price;
       var trip_filter = { trip_id: SeatManager.trip_id };
       var trip_update = {
+        seat_and_status: SeatManager.seat_and_status,
         total_price: trip_total_price
       }
 
