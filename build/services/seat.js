@@ -568,6 +568,12 @@ let CategoryService = class CategoryService {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 var seatHistoryData;
+                var seat_list_for_history = [];
+                var seat_id_list = [];
+                for (var i = 0; i < SeatManager.seat_id.length; i++) {
+                    seat_id_list.push(SeatManager.seat_id[i]['seat_id']);
+                    seat_list_for_history.push(SeatManager.seat_id[i]['seat_no']);
+                }
                 const seat_history_id = "seat_history_id_" + (0, uuid_1.v4)();
                 seatHistoryData = {
                     seat_history_id: seat_history_id,
@@ -575,15 +581,11 @@ let CategoryService = class CategoryService {
                     userid: SeatManager.userid,
                     customer_name: SeatManager.customer_name,
                     phone: SeatManager.phone,
-                    seat_no_array: JSON.stringify(SeatManager.seat_no_array),
+                    seat_no_array: JSON.stringify(seat_list_for_history),
                     seat_status: SeatManager.seat_status,
                     date_time: SeatManager.date_time,
-                    seat_id: SeatManager.trip_id + JSON.stringify(SeatManager.seat_no_array),
+                    seat_id: SeatManager.trip_id + JSON.stringify(seat_id_list),
                 };
-                var seat_id_list = [];
-                for (var seat_id in SeatManager.seat_id) {
-                    seat_id_list.push(SeatManager.seat_id[seat_id]);
-                }
                 var seat_filter = {
                     trip_id: SeatManager.trip_id,
                     seat_id: { [Op.or]: seat_id_list },
