@@ -1,0 +1,37 @@
+{
+    "date_time": "2024-02-06 11:21 PM",
+    "userid": "09258259091",
+    "trip_id": "trip_id_a5ab3290-c8ec-420a-9362-380f5fb3cadb",
+    "seat_id": [
+        {
+            "seat_no": "1",
+            "seat_id": "seat_id_95c2288c-e29b-40d8-bf82-794490f34333"
+        },
+        {
+            "seat_no": "2",
+            "seat_id": "seat_id_b3222db6-8fd2-43b1-ad13-1e59e3e3b8f3"
+        }
+    ],
+    "sub_route_id": "",
+    "seat_status": 1,
+    "total_price": 44000,
+    "front_seat_price": 0,
+    "back_seat_price": 0,
+    "customer_name": "",
+    "discount": 0,
+    "phone": "",
+    "gender": 0,
+    "original_price": 70000,
+    "pickup_place": "",
+    "remark": "",
+    "seat_isdeleted": false,
+    "seat_and_status": {
+        "open": 1,
+        "blocked": 0,
+        "booked": 0,
+        "sold": 3,
+        "total": 4
+    },
+    "car_type": "1",
+    "ref_price": 40000
+}

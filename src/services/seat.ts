@@ -199,7 +199,6 @@ export default class CategoryService {
                 "seat_isdeleted": item.seat_isdeleted,
                 "ref_id": item.ref_id,
                 "ref_price": item.t1
-
               };
 
               templist.push(tempitem);
@@ -771,8 +770,17 @@ export default class CategoryService {
         seat_id: SeatManager.trip_id + JSON.stringify(SeatManager.seat_no_array),
       }
 
+      var seat_id_list = [];
+      for (var seat_id in SeatManager.seat_id) {
+        seat_id_list.push(SeatManager.seat_id[seat_id]);
+      }
 
-      var seat_filter = { trip_id: SeatManager.trip_id, seat_isdeleted: false };
+
+      var seat_filter = { 
+        trip_id: SeatManager.trip_id, 
+        seat_id: { [Op.or]: seat_id_list },
+        seat_isdeleted: false 
+      };
       var seat_update = {
         seat_isdeleted: true
       }
@@ -788,7 +796,7 @@ export default class CategoryService {
       var trip_total_price = trip_original_price - SeatManager.ref_price;
       var trip_filter = { trip_id: SeatManager.trip_id };
       var trip_update = {
-        seat_and_status: SeatManager.seat_and_status,
+        seat_and_status: JSON.stringify(SeatManager.seat_and_status),
         total_price: trip_total_price
       }
 
@@ -814,4 +822,3 @@ export default class CategoryService {
   }
 
 }
-
