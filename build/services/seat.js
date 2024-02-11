@@ -27,6 +27,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const typedi_1 = require("typedi");
 const uuid_1 = require("uuid");
 const sequelize_1 = __importDefault(require("sequelize"));
+const sequelize_2 = __importDefault(require("../sequelize"));
 const Op = sequelize_1.default.Op;
 let CategoryService = class CategoryService {
     constructor(seatModel, tripModel, userModel, seatHistoryModel) {
@@ -133,11 +134,11 @@ let CategoryService = class CategoryService {
                 }
                 try {
                     var result;
-                    yield this.seatModel.services.findAll({
-                        where: { trip_id: GetSeat.trip_id, seat_isdeleted: false }
-                    }).then((data) => {
-                        if (data.length > 0) {
-                            console.log(data[0]);
+                    var GetSeatsQuery = `SELECT * FROM seats 
+        JOIN users ON seats.userid = users.userid
+        WHERE seats.trip_id = '${GetSeat.trip_id}';`;
+                    yield sequelize_2.default.query(GetSeatsQuery).then((data) => {
+                        if (data) {
                             var templist = [];
                             data.map((item) => {
                                 var tempitem = {
@@ -154,6 +155,7 @@ let CategoryService = class CategoryService {
                                     "pickup_place": item.pickup_place,
                                     "remark": item.remark,
                                     "userid": item.userid,
+                                    "username": item.username,
                                     "seat_isdeleted": item.seat_isdeleted,
                                     "ref_id": item.ref_id,
                                     "ref_price": item.t1
@@ -172,6 +174,44 @@ let CategoryService = class CategoryService {
                             result = { returncode, message, data: {} };
                         }
                     });
+                    // await this.seatModel.services.findAll({
+                    //   where:
+                    //     { trip_id: GetSeat.trip_id, seat_isdeleted: false }
+                    // }).then((data: any) => {
+                    //   if (data.length > 0) {
+                    //     var templist: any[] = [];
+                    //     data.map((item: any) => {
+                    //       var tempitem = {
+                    //         "seat_id": item.seat_id,
+                    //         "seat_no_array": item.seat_no_array,
+                    //         "trip_id": item.trip_id,
+                    //         "sub_route_id": item.sub_route_id,
+                    //         "seat_status": item.seat_status,
+                    //         "total_price": item.total_price,
+                    //         "customer_name": item.customer_name,
+                    //         "discount": item.discount,
+                    //         "phone": item.phone,
+                    //         "gender": item.gender,
+                    //         "pickup_place": item.pickup_place,
+                    //         "remark": item.remark,
+                    //         "userid": item.userid,
+                    //         "seat_isdeleted": item.seat_isdeleted,
+                    //         "ref_id": item.ref_id,
+                    //         "ref_price": item.t1
+                    //       };
+                    //       templist.push(tempitem);
+                    //     });
+                    //     data = templist;
+                    //     const returncode = "200";
+                    //     const message = "Seat List"
+                    //     result = { returncode, message, data: data };
+                    //   } else {
+                    //     const returncode = "300";
+                    //     const message = "Seat list not found"
+                    //     var data: any;
+                    //     result = { returncode, message, data: {} };
+                    //   }
+                    // });
                     return result;
                 }
                 catch (e) {

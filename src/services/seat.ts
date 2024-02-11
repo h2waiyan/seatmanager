@@ -4,6 +4,7 @@ import { Container } from 'typedi';
 import { GetSeat, SeatManager } from '../interfaces/seat';
 import { v4 as uuidv4 } from 'uuid';
 import Sequelize, { and, Model, where } from "sequelize";
+import sequelize from '../sequelize';
 import { json } from 'body-parser';
 import { ref } from 'joi';
 const Op = Sequelize.Op;
@@ -169,19 +170,14 @@ export default class CategoryService {
       try {
         var result: any;
 
-        await this.seatModel.services.findAll({
-          where:
-            { trip_id: GetSeat.trip_id, seat_isdeleted: false }
-        }).then((data: any) => {
+        var GetSeatsQuery = `SELECT * FROM seats 
+        JOIN users ON seats.userid = users.userid
+        WHERE seats.trip_id = '${GetSeat.trip_id}';`;
 
-
-          if (data.length > 0) {
-
-            console.log(data[0]);
-
+        await sequelize.query(GetSeatsQuery).then((data: any) => {
+          if (data) {
             var templist: any[] = [];
             data.map((item: any) => {
-
               var tempitem = {
                 "seat_id": item.seat_id,
                 "seat_no_array": item.seat_no_array,
@@ -196,15 +192,13 @@ export default class CategoryService {
                 "pickup_place": item.pickup_place,
                 "remark": item.remark,
                 "userid": item.userid,
+                "username" : item.username,
                 "seat_isdeleted": item.seat_isdeleted,
                 "ref_id": item.ref_id,
                 "ref_price": item.t1
               };
-
               templist.push(tempitem);
-
             });
-
             data = templist;
             const returncode = "200";
             const message = "Seat List"
@@ -217,6 +211,46 @@ export default class CategoryService {
             result = { returncode, message, data: {} };
           }
         });
+
+        // await this.seatModel.services.findAll({
+        //   where:
+        //     { trip_id: GetSeat.trip_id, seat_isdeleted: false }
+        // }).then((data: any) => {
+        //   if (data.length > 0) {
+        //     var templist: any[] = [];
+        //     data.map((item: any) => {
+        //       var tempitem = {
+        //         "seat_id": item.seat_id,
+        //         "seat_no_array": item.seat_no_array,
+        //         "trip_id": item.trip_id,
+        //         "sub_route_id": item.sub_route_id,
+        //         "seat_status": item.seat_status,
+        //         "total_price": item.total_price,
+        //         "customer_name": item.customer_name,
+        //         "discount": item.discount,
+        //         "phone": item.phone,
+        //         "gender": item.gender,
+        //         "pickup_place": item.pickup_place,
+        //         "remark": item.remark,
+        //         "userid": item.userid,
+        //         "seat_isdeleted": item.seat_isdeleted,
+        //         "ref_id": item.ref_id,
+        //         "ref_price": item.t1
+        //       };
+        //       templist.push(tempitem);
+        //     });
+        //     data = templist;
+        //     const returncode = "200";
+        //     const message = "Seat List"
+
+        //     result = { returncode, message, data: data };
+        //   } else {
+        //     const returncode = "300";
+        //     const message = "Seat list not found"
+        //     var data: any;
+        //     result = { returncode, message, data: {} };
+        //   }
+        // });
         return result;
       } catch (e) {
         console.log(e);
@@ -480,7 +514,7 @@ export default class CategoryService {
 
         return result;
 
-      } 
+      }
       // new seat in the list
       else {
 
@@ -777,10 +811,10 @@ export default class CategoryService {
         seat_id: SeatManager.trip_id + JSON.stringify(seat_id_list),
       }
 
-      var seat_filter = { 
-        trip_id: SeatManager.trip_id, 
+      var seat_filter = {
+        trip_id: SeatManager.trip_id,
         seat_id: { [Op.or]: seat_id_list },
-        seat_isdeleted: false 
+        seat_isdeleted: false
       };
       var seat_update = {
         seat_isdeleted: true
