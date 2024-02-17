@@ -357,7 +357,7 @@ export default class UserService {
                       username: item.username,
                       gateid: item.gate_id,
                       servicefee: item.service_fee_id,
-                      remark: item.remark
+                      remark: item.user_remark
                     };
 
                     templist.push(tempitem);
@@ -433,7 +433,7 @@ export default class UserService {
               "userid": data[0].userid,
               "usertype": data[0].usertype,
               "username": data[0].username,
-              "remark": data[0].remark
+              "remark": data[0].user_remark
             };
             result = { returncode, message, data: mydata };
           } else {
@@ -514,7 +514,7 @@ export default class UserService {
         const update = {
           usertype: req.body.usertype,
           username: req.body.username,
-          remark: req.body.remark
+          user_remark: req.body.remark
         };
         // Mysql function to delete dat{a
         await this.userModel.services
@@ -531,7 +531,7 @@ export default class UserService {
                 "userid": newRecord[0].userid,
                 "usertype": newRecord[0].usertype,
                 "username": newRecord[0].username,
-                "remark": newRecord[0].remark
+                "remark": newRecord[0].user_remark
               };
 
               result = { returncode, message, data };
