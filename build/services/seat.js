@@ -140,7 +140,7 @@ let CategoryService = class CategoryService {
                     yield sequelize_2.default.query(GetSeatsQuery).then((data) => {
                         if (data) {
                             var templist = [];
-                            data.map((item) => {
+                            data[0].map((item) => {
                                 var tempitem = {
                                     "seat_id": item.seat_id,
                                     "seat_no_array": item.seat_no_array,
@@ -165,6 +165,7 @@ let CategoryService = class CategoryService {
                             data = templist;
                             const returncode = "200";
                             const message = "Seat List";
+                            console.log(data);
                             result = { returncode, message, data: data };
                         }
                         else {

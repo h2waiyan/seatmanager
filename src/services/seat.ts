@@ -177,7 +177,7 @@ export default class CategoryService {
         await sequelize.query(GetSeatsQuery).then((data: any) => {
           if (data) {
             var templist: any[] = [];
-            data.map((item: any) => {
+            data[0].map((item: any) => {
               var tempitem = {
                 "seat_id": item.seat_id,
                 "seat_no_array": item.seat_no_array,
@@ -202,6 +202,8 @@ export default class CategoryService {
             data = templist;
             const returncode = "200";
             const message = "Seat List"
+
+            console.log(data);
 
             result = { returncode, message, data: data };
           } else {
