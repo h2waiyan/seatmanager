@@ -190,10 +190,6 @@ export default class TripService {
       return { returncode: "300", message: "User Not Found", data: {} }
     }
 
-    if (userRecord == "user-has-no-authorization") {
-      return { returncode: "300", message: "User Had no authorization to create Category.", data: {} }
-    }
-
     const Op = Sequelize.Op;
     try {
 
@@ -245,10 +241,6 @@ export default class TripService {
 
     if (userRecord == "admin-not-found") {
       return { returncode: "300", message: "User Not Found", data: {} }
-    }
-
-    if (userRecord == "user-has-no-authorization") {
-      return { returncode: "300", message: "User Had no authorization to create Category.", data: {} }
     }
 
     const Op = Sequelize.Op;

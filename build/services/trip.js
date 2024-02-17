@@ -168,9 +168,6 @@ let TripService = class TripService {
             if (userRecord == "admin-not-found") {
                 return { returncode: "300", message: "User Not Found", data: {} };
             }
-            if (userRecord == "user-has-no-authorization") {
-                return { returncode: "300", message: "User Had no authorization to create Category.", data: {} };
-            }
             const Op = sequelize_1.default.Op;
             try {
                 if (TripInterface.trip_id == "" || TripInterface.trip_id == null) {
@@ -215,9 +212,6 @@ let TripService = class TripService {
             var userRecord = yield AuthrizationCheckService.rootAdminCheck(TripInterface.userid);
             if (userRecord == "admin-not-found") {
                 return { returncode: "300", message: "User Not Found", data: {} };
-            }
-            if (userRecord == "user-has-no-authorization") {
-                return { returncode: "300", message: "User Had no authorization to create Category.", data: {} };
             }
             const Op = sequelize_1.default.Op;
             try {
