@@ -57,7 +57,7 @@ const seatModel = (sequelize, Sequelize) => {
         ref_id: {
             type: Sequelize.STRING,
         },
-        t1: {
+        ref_price: {
             type: Sequelize.STRING,
         },
         t2: {
