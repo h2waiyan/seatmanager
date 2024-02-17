@@ -6,7 +6,7 @@ export interface IUser {
     password: string;
     gate_id: string;
     service_fee_id : string;
-    remark: string;
+    user_remark: string;
     isdeleted: string;
     sessionexpired: string;
 }

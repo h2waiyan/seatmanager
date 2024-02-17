@@ -77,7 +77,7 @@ export default class CategoryService {
             seat_no_array: SeatManager.seat_no_array[i],
             total_price: SeatManager.seat_status == 4 ? SeatManager.front_seat_price : 0,
             ref_id: ref_id,
-            t1: SeatManager.ref_price,
+            ref_price: SeatManager.ref_price,
           }
 
         }
@@ -91,7 +91,7 @@ export default class CategoryService {
             seat_id: seat_id,
             seat_no_array: SeatManager.seat_no_array[i],
             ref_id: ref_id,
-            t1: SeatManager.ref_price,
+            ref_price: SeatManager.ref_price,
           }
           // }
 
@@ -172,7 +172,7 @@ export default class CategoryService {
 
         var GetSeatsQuery = `SELECT * FROM seats 
         JOIN users ON seats.userid = users.userid
-        WHERE seats.trip_id = '${GetSeat.trip_id}';`;
+        WHERE seats.trip_id = '${GetSeat.trip_id}' AND seats.seat_isdeleted='false';`;
 
         await sequelize.query(GetSeatsQuery).then((data: any) => {
           if (data) {
@@ -195,7 +195,7 @@ export default class CategoryService {
                 "username" : item.username,
                 "seat_isdeleted": item.seat_isdeleted,
                 "ref_id": item.ref_id,
-                "ref_price": item.t1
+                "ref_price": item.ref_price
               };
               templist.push(tempitem);
             });
@@ -237,7 +237,7 @@ export default class CategoryService {
         //         "userid": item.userid,
         //         "seat_isdeleted": item.seat_isdeleted,
         //         "ref_id": item.ref_id,
-        //         "ref_price": item.t1
+        //         "ref_price": item.ref_price
         //       };
         //       templist.push(tempitem);
         //     });

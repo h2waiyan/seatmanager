@@ -27,7 +27,7 @@ const userModel = (sequelize: any, Sequelize: any) => {
     service_fee_id : {
       type: Sequelize.STRING,
     },
-    remark: {
+    user_remark: {
       type: Sequelize.STRING,
     },
     isdeleted : {

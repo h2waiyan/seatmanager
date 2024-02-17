@@ -55,7 +55,7 @@ let AuthService = class AuthService {
                     username: IUser.username,
                     password: hashedPassword,
                     usertype: IUser.usertype,
-                    remark: IUser.remark,
+                    user_remark: IUser.user_remark,
                     service_fee_id: IUser.service_fee_id,
                     gate_id: IUser.gate_id,
                 };
@@ -133,7 +133,7 @@ let AuthService = class AuthService {
                     "userid": userRecord.userid,
                     "usertype": userRecord.usertype,
                     "username": userRecord.username,
-                    "remark": userRecord.remark,
+                    "remark": userRecord.user_remark,
                     "gateid": userRecord.gate_id
                 };
                 if (UserLogin.fcmtoken == undefined || "") {

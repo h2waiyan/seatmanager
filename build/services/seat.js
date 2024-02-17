@@ -71,11 +71,11 @@ let CategoryService = class CategoryService {
                     var backSeatData;
                     if (SeatManager.seat_no_array[i] == "1") {
                         one_seat_price = SeatManager.front_seat_price;
-                        seatData = Object.assign(Object.assign({}, SeatManager), { seat_id: seat_id, seat_no_array: SeatManager.seat_no_array[i], total_price: SeatManager.seat_status == 4 ? SeatManager.front_seat_price : 0, ref_id: ref_id, t1: SeatManager.ref_price });
+                        seatData = Object.assign(Object.assign({}, SeatManager), { seat_id: seat_id, seat_no_array: SeatManager.seat_no_array[i], total_price: SeatManager.seat_status == 4 ? SeatManager.front_seat_price : 0, ref_id: ref_id, ref_price: SeatManager.ref_price });
                     }
                     else {
                         one_seat_price = SeatManager.back_seat_price;
-                        seatData = Object.assign(Object.assign({}, SeatManager), { total_price: SeatManager.seat_status == 4 ? SeatManager.back_seat_price : 0, seat_id: seat_id, seat_no_array: SeatManager.seat_no_array[i], ref_id: ref_id, t1: SeatManager.ref_price });
+                        seatData = Object.assign(Object.assign({}, SeatManager), { total_price: SeatManager.seat_status == 4 ? SeatManager.back_seat_price : 0, seat_id: seat_id, seat_no_array: SeatManager.seat_no_array[i], ref_id: ref_id, ref_price: SeatManager.ref_price });
                         // }
                     }
                     seat_list.push(seatData);
@@ -136,7 +136,7 @@ let CategoryService = class CategoryService {
                     var result;
                     var GetSeatsQuery = `SELECT * FROM seats 
         JOIN users ON seats.userid = users.userid
-        WHERE seats.trip_id = '${GetSeat.trip_id}';`;
+        WHERE seats.trip_id = '${GetSeat.trip_id}' AND seats.seat_isdeleted='false';`;
                     yield sequelize_2.default.query(GetSeatsQuery).then((data) => {
                         if (data) {
                             var templist = [];
@@ -158,7 +158,7 @@ let CategoryService = class CategoryService {
                                     "username": item.username,
                                     "seat_isdeleted": item.seat_isdeleted,
                                     "ref_id": item.ref_id,
-                                    "ref_price": item.t1
+                                    "ref_price": item.ref_price
                                 };
                                 templist.push(tempitem);
                             });
@@ -198,7 +198,7 @@ let CategoryService = class CategoryService {
                     //         "userid": item.userid,
                     //         "seat_isdeleted": item.seat_isdeleted,
                     //         "ref_id": item.ref_id,
-                    //         "ref_price": item.t1
+                    //         "ref_price": item.ref_price
                     //       };
                     //       templist.push(tempitem);
                     //     });
